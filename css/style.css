@@ -1,0 +1,1957 @@
+/* ==========================================================================
+   FRIDGEFLOW — Estética beige/crema, tarjetas, modales y layout del planificador
+   --------------------------------------------------------------------------
+   MAPA DEL LAYOUT DEL PLANIFICADOR (index.html)
+   .layout-principal .................... una columna (tablero, balance, fila inferior)
+   .planificador-top .................... grid 1fr + 172px  →  tablero | ajustes
+   .calendario-wrap / .modulo-acciones .. paneles con marco (blanco, borde, radio)
+   .grid-semana ......................... 54px + 7 días (filas Comida / Cena)
+   .balance-card / #balance-semana ...... banda a ancho completo, contenido en 3 columnas
+   .panel-inferior ...................... 3 columnas: platos sugeridos | estadísticas | compra
+   .spot ................................ ancho completo bajo la fila inferior
+   RESPONSIVE ........................... un único bloque al FINAL del archivo
+   ========================================================================== */
+:root {
+  --fondo: #f7f3ec;
+  --acento: #e8833a;
+  --acento-oscuro: #c96a2e;
+  --texto: #3a3a3a;
+  --texto-suave: #6b6b6b;
+  --borde: #d8d0c1;
+  --borde-oscuro: #bfb4a4;
+  --verde-ayer: #7aa35e;
+  --blanco: #ffffff;
+  --sombra: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sombra-hover: 0 8px 20px rgba(0, 0, 0, 0.14);
+  --radius: 12px;
+  --max-width: 1200px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: var(--acento); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; font-family: inherit; border: none; border-radius: var(--radius); }
+h1, h2, h3, h4 { font-family: Georgia, "Times New Roman", serif; color: var(--texto); }
+img { max-width: 100%; display: block; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
+.section { padding: 3rem 0; }
+.section-title {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--texto);
+  border-left: 4px solid var(--acento);
+  padding-left: 1rem;
+}
+.text-center { text-align: center; }
+/* ===== HEADER ===== */
+header {
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--texto);
+}
+.logo .dot {
+  width: 10px;
+  height: 10px;
+  background: var(--acento);
+  border-radius: 50%;
+}
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.nav-links a {
+  color: var(--texto);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.4rem 0;
+  border-bottom: 2px solid transparent;
+}
+.nav-links a:hover {
+  color: var(--acento);
+  border-bottom-color: var(--acento);
+  text-decoration: none;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.alimentos-contador {
+  background: var(--fondo);
+  color: var(--texto);
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--borde);
+}
+.btn-empezar {
+  background: var(--acento);
+  color: var(--blanco);
+  padding: 0.55rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.btn-empezar:hover { background: var(--acento-oscuro); }
+/* ===== HERO ===== */
+.hero {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+.hero h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+.hero p {
+  font-size: 1.1rem;
+  color: var(--texto-suave);
+  max-width: 700px;
+  margin: 0 auto 1.8rem auto;
+}
+.btn-acciones {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+.btn-principal {
+  background: var(--acento);
+  color: var(--blanco);
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.btn-principal:hover { background: var(--acento-oscuro); }
+.btn-secundario {
+  background: transparent;
+  color: var(--acento);
+  border: 2px solid var(--acento);
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.btn-secundario:hover {
+  background: var(--acento);
+  color: var(--blanco);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--texto);
+  border: 2px solid var(--borde);
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.btn-outline:hover {
+  border-color: var(--acento);
+  color: var(--acento);
+}
+/* ===== PLANIFICADOR SEMANAL ===== */
+.planificador {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+/* --- Planificador: tablero (izquierda) + columna de ajustes (derecha) --- */
+.planificador-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 172px;
+  gap: 1rem;
+  align-items: start;
+}
+.calendario-wrap {
+  min-width: 0;
+  padding: 0.9rem 1rem 0.8rem;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+}
+.modulo-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+}
+.modulo-acciones .ajustes-titulo {
+  margin: 0 0 0.1rem;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.modulo-acciones .btn-principal,
+.modulo-acciones .btn-secundario,
+.modulo-acciones .btn-outline {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.5rem 0.45rem;
+  font-size: 0.8rem;
+  line-height: 1.15;
+  text-align: center;
+  border-radius: 10px;
+}
+.modulo-acciones .toggle-vegetariano {
+  justify-content: center;
+  margin-top: 0;
+  min-height: 42px;
+  padding: 0.5rem 0.45rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+.modulo-acciones .toggle-texto {
+  font-weight: 600;
+  color: var(--texto);
+  font-size: 0.8rem;
+}
+
+/* ===== ESTADÍSTICAS ===== */
+.estadisticas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+
+.stat-card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  text-align: center;
+  box-shadow: var(--sombra);
+}
+.stat-valor {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--acento);
+  font-family: Georgia, "Times New Roman", serif;
+}
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin-top: 0.3rem;
+}
+/* ===== BARRA LATERAL ===== */
+.sidebar-card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  box-shadow: var(--sombra);
+}
+.sidebar-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  color: var(--texto);
+}
+.compra-intro {
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+  margin-bottom: 1rem;
+}
+.spot {
+  background: #e9e3d7;
+  border: 2px dashed var(--borde-oscuro);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+.spot strong { color: var(--texto); }
+/* ===== CÓMO FUNCIONA ===== */
+.pasos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.paso {
+  text-align: center;
+  padding: 1rem;
+}
+.paso-numero {
+  display: inline-block;
+  background: var(--acento);
+  color: var(--blanco);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+.paso h4 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.paso p { font-size: 0.85rem; color: var(--texto-suave); }
+/* ===== RECETARIO ===== */
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.filtros-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.chips-ingredientes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.chip {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  color: var(--texto);
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chip:hover { border-color: var(--acento); color: var(--acento); }
+.btn-mas-ingredientes {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  color: var(--acento);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.btn-mas-ingredientes:hover { border-color: var(--acento); background: var(--acento); color: var(--blanco); }
+.secundarios-desplegable {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+.secundarios-desplegable[hidden] { display: none; }
+.chip-secundario {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+}
+.chip.activo {
+  background: var(--acento);
+  color: var(--blanco);
+  border-color: var(--acento);
+}
+.chip.eliminable { cursor: default; }
+.chip-eliminar {
+  margin-left: 0.4rem;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+.chip-eliminar:hover { color: #c0392b; }
+.contador-resultados {
+  font-weight: 600;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+.grid-recetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.tarjeta-receta {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.tarjeta-receta:hover {
+  box-shadow: var(--sombra-hover);
+  border-color: var(--acento);
+}
+.tarjeta-imagen {
+  width: 100%;
+  height: 180px;
+  background: #e9e3d7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.tarjeta-contenido { padding: 1rem; }
+.tarjeta-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--texto);
+}
+.tarjeta-tiempo {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin-bottom: 0.6rem;
+}
+.tarjeta-desc {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  margin-bottom: 0.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tarjeta-ingredientes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.tarjeta-chip {
+  background: #f0e9dc;
+  color: var(--texto);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+/* ===== GESTIÓN DE INGREDIENTES ===== */
+/* El bloque "Mis ingredientes" se movió a una ventana modal (ver FAB al final) */
+.categorias-ingredientes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.categoria {
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  padding: 0.8rem;
+}
+.categoria h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+  color: var(--acento);
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: 0.3rem;
+}
+.lista-ingredientes-cat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.form-nuevo-ingrediente {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--borde);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.form-nuevo-ingrediente select,
+.form-nuevo-ingrediente input[type="text"] {
+  padding: 0.5rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+/* ===== MODALES ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.abierto { display: flex; }
+.modal {
+  background: var(--blanco);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--sombra-hover);
+  animation: modalEntrada 0.25s ease;
+}
+@keyframes modalEntrada {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--borde);
+}
+.modal-header h3 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+.cerrar-modal {
+  background: transparent;
+  font-size: 1.5rem;
+  color: var(--texto-suave);
+  padding: 0.2rem 0.6rem;
+  line-height: 1;
+}
+.cerrar-modal:hover { color: var(--texto); }
+.modal-body { padding: 1.5rem; }
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--borde);
+  background: #f5f0e8;
+}
+.btn-guardar {
+  background: var(--acento);
+  color: var(--blanco);
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+}
+.btn-guardar:hover { background: var(--acento-oscuro); }
+.btn-cancelar {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  padding: 0.6rem 1.4rem;
+  font-weight: 500;
+}
+.btn-cancelar:hover {
+  border-color: var(--acento);
+  color: var(--acento);
+}
+/* Formularios */
+.form-group { margin-bottom: 1rem; }
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--texto);
+}
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+.chips-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.equipamiento-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+/* ===== DETALLE DE RECETA (modal) ===== */
+.detalle-imagen {
+  width: 100%;
+  height: 220px;
+  background: #e9e3d7;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+.detalle-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+.detalle-personas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin-bottom: 1.2rem;
+  padding: 0.75rem 0.9rem;
+  background: #faf7f1;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+.detalle-personas label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0;
+  color: var(--texto);
+}
+.detalle-personas-ayuda {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.stepper-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2ece2;
+  color: var(--texto);
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.stepper-btn:hover { background: var(--acento); color: var(--blanco); }
+.stepper-btn:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+#detalle-personas {
+  width: 56px;
+  padding: 0.3rem 0.15rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--texto);
+  text-align: center;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+#detalle-personas::-webkit-outer-spin-button,
+#detalle-personas::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#detalle-personas:focus {
+  outline: 2px solid var(--acento);
+  outline-offset: 1px;
+  background: var(--blanco);
+}
+.detalle-ingredientes h4,
+.detalle-pasos h4,
+.detalle-equipamiento h4 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--texto);
+}
+.lista-ingredientes-detalle {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.lista-ingredientes-detalle li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0;
+  margin-bottom: 0;
+  border-bottom: 1px dashed var(--borde);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+.lista-ingredientes-detalle li:last-child { border-bottom: 0; }
+/* Una sola viñeta: la del ::before (la nativa del <ul> queda desactivada) */
+.lista-ingredientes-detalle li::before {
+  content: "•";
+  color: var(--acento);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.detalle-ingrediente .ing-nombre { flex: 1 1 auto; min-width: 0; }
+.detalle-ingrediente .ing-cantidad {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.detalle-ingrediente.falta .ing-nombre { color: var(--texto-suave); }
+.lista-pasos li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  padding-left: 1.2rem;
+  position: relative;
+  line-height: 1.5;
+}
+.lista-pasos li::before {
+  content: counter(paso-counter) ". ";
+  counter-increment: paso-counter;
+  font-weight: 700;
+  color: var(--acento);
+  position: absolute;
+  left: 0;
+}
+.lista-pasos { counter-reset: paso-counter; }
+.equipamiento-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.equip-chip {
+  background: #f0e9dc;
+  color: var(--texto);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+}
+.btn-anadir-semana {
+  background: var(--verde-ayer);
+  color: var(--blanco);
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  width: 100%;
+}
+.btn-anadir-semana:hover { background: #658a4e; }
+/* ===== AUDITORÍA ===== */
+.auditoria-bloque {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--sombra);
+}
+.auditoria-bloque h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--texto);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.auditoria-bloque h3 .numero {
+  background: var(--acento);
+  color: var(--blanco);
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+.auditoria-item {
+  margin-bottom: 1.2rem;
+}
+.auditoria-item h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+  color: var(--texto);
+}
+.auditoria-item p {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  margin-bottom: 0.3rem;
+}
+.estado {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.estado-resuelto {
+  background: #e3f0d9;
+  color: #4d7c1a;
+}
+.veredicto {
+  background: var(--acento);
+  color: var(--blanco);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+.veredicto h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.veredicto p {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header-inner {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .header-actions { justify-content: center; }
+  .grid-recetas { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .modal { margin: 0.5rem; max-height: 95vh; }
+  .hero h1 { font-size: 1.7rem; }
+}
+@media (max-width: 480px) {
+  .btn-acciones { flex-direction: column; align-items: center; }
+  .btn-principal,
+  .btn-secundario,
+  .btn-outline {
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+   CALENDARIO SEMANAL CON IMÁGENES — v2.2
+   ========================================================================== */
+/* Calendario (izquierda) + panel de platos sugeridos (derecha) */
+.layout-principal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 3rem;
+}
+
+/* Evita que el calendario (7 columnas) ensanche la página en móvil */
+.layout-principal > .planificador { min-width: 0; }
+
+/* --- Fila inferior del planificador: platos sugeridos | estadisticas | lista de la compra --- */
+.panel-inferior {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+.panel-inferior > .spot { grid-column: 1 / -1; }
+.grid-semana { min-width: 0; }
+.grid-semana {
+  display: grid;
+  grid-template-columns: 54px repeat(7, minmax(195px, 1fr));
+  gap: 0;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+}
+.grid-esquina {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 0.45rem 0.15rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--borde-oscuro);
+}
+.dia-header {
+  text-align: center;
+  padding: 0 0 0.5rem 0;
+  border-bottom: 2px solid var(--borde);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+.fila-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  padding: 0.5rem 0.5rem 0.5rem 0.3rem;
+  border-bottom: 1px solid var(--borde);
+  background: #f5f1e8;
+}
+
+/* --- Celda con foto --- */
+.celda {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 88px;
+  padding: 0;
+  border: 2px solid var(--borde);
+  border-radius: 0;
+  background: var(--blanco);
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.celda:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-hover);
+}
+.celda.ocupada {}
+.celda:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.celda.vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--borde-oscuro);
+  background: transparent;
+}
+.celda.vacia:hover { background: rgba(216, 208, 193, 0.25); }
+.celda-mas { font-size: 1.3rem; line-height: 1; color: var(--borde-oscuro); }
+.celda.vacia:hover .celda-mas { color: var(--acento); }
+.celda-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.celda-degradado {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.05) 78%);
+}
+.celda-titulo {
+  position: absolute;
+  left: 0.4rem;
+  right: 0.4rem;
+  bottom: 0.3rem;
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  pointer-events: none;
+}
+.etiqueta-ayer {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  padding: 0.08rem 0.32rem;
+  border-radius: 3px;
+  background: var(--verde-ayer);
+  color: #fff;
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.celda-quitar {
+  position: absolute;
+  top: 0.22rem;
+  right: 0.22rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.celda:hover .celda-quitar,
+.celda:focus-visible .celda-quitar { opacity: 1; }
+.celda-quitar:hover { background: #c0392b; }
+.calendario-ayuda {
+  font-size: 0.72rem;
+  color: var(--texto-suave);
+  margin-bottom: 0.5rem;
+}
+/* Reserva de espacio para el icono cuando la imagen no carga */
+.tarjeta-imagen.sin-imagen::after,
+.detalle-imagen.sin-imagen::after,
+.sugerido-thumb.sin-imagen::after,
+.elegir-thumb.sin-imagen::after {
+  content: "🍽️";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  opacity: 0.5;
+}
+
+/* --- Panel de platos sugeridos (miniatura + título + meta) --- */
+.platos-sugeridos {
+  display: flex;
+  flex-direction: column;
+  max-height: 430px;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+.plato-sugerido {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0;
+  border: none;
+  border-bottom: 1px solid var(--borde);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.plato-sugerido:last-child { border-bottom: none; }
+.plato-sugerido:hover .sugerido-nombre { color: var(--acento); }
+.sugerido-thumb {
+  position: relative;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e9e3d7;
+}
+.sugerido-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sugerido-texto { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
+.sugerido-nombre {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--texto);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sugerido-meta {
+  font-size: 0.56rem;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.sugeridos-leyenda {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--borde);
+  font-size: 0.68rem;
+  color: var(--texto-suave);
+}
+
+/* --- Lista de la compra --- */
+.lista-compra {
+  list-style: none;
+  margin: 0.45rem 0 0.6rem;
+  padding: 0;
+  font-size: 0.82rem;
+}
+.lista-compra li {
+  position: relative;
+  padding-left: 0.95rem;
+  margin-bottom: 0.22rem;
+}
+.lista-compra li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--acento);
+  font-weight: 700;
+}
+.compra-resumen { font-size: 0.82rem; margin-bottom: 0.25rem; }
+.compra-pie { font-size: 0.72rem; color: var(--texto-suave); margin-bottom: 0.9rem; }
+.compra-ok { font-size: 0.82rem; color: #4d7c1a; margin-bottom: 0.9rem; }
+.vacio-texto { font-size: 0.8rem; color: var(--texto-suave); }
+
+/* --- Tarjetas del recetario con imagen --- */
+.tarjeta-imagen {
+  position: relative;
+  width: 100%;
+  height: 175px;
+  background: #e9e3d7;
+  overflow: hidden;
+}
+.tarjeta-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.tarjeta-receta:hover .tarjeta-img { transform: scale(1.04); }
+.tarjeta-receta:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+/* --- Imagen grande del detalle --- */
+.detalle-imagen {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: #e9e3d7;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.detalle-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.placeholder-icono { font-size: 2.5rem; }
+.detalle-meta { flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+.ing-cantidad { color: var(--texto-suave); font-weight: 600; }
+.ing-falta {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  background: #f7dcd2;
+  color: #a33b1f;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+
+/* --- Modal "elegir plato" --- */
+.modal.modal-pequeno { max-width: 460px; }
+#elegir-buscar {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--blanco);
+  color: var(--texto);
+}
+#elegir-buscar:focus { outline: none; border-color: var(--acento); }
+.lista-elegir {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.elegir-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.45rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--fondo);
+  text-align: left;
+  cursor: pointer;
+}
+.elegir-item:hover { border-color: var(--acento); background: var(--blanco); }
+.elegir-thumb {
+  position: relative;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e9e3d7;
+}
+.elegir-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.elegir-texto { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
+.elegir-texto strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  color: var(--texto);
+}
+.elegir-texto small { font-size: 0.72rem; color: var(--texto-suave); }
+
+/* --- Chips por categoría del modal "añadir receta" --- */
+.chips-categoria { margin-top: 0.6rem; }
+.chips-categoria-titulo {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--acento);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.chips-categoria-lista { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip-mini { font-size: 0.72rem; padding: 0.2rem 0.55rem; }
+.seleccion-etiqueta {
+  display: inline-block;
+  margin-right: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+.form-nuevo-ingrediente { display: flex; flex-direction: column; gap: 0.4rem; }
+
+/* --- Estadísticas dentro del layout del calendario (4 x 2) --- */
+.layout-principal .estadisticas {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0;
+  align-content: start;
+}
+.layout-principal .stat-card { padding: 0.55rem 0.35rem; box-shadow: none; }
+.layout-principal .stat-valor { font-size: 1.05rem; line-height: 1.2; }
+.layout-principal .stat-label { font-size: 0.62rem; line-height: 1.15; }
+/* Las tarjetas de categoría no se estiran a la altura de la más alta */
+.categorias-ingredientes { align-items: start; }
+/* La numeración de los pasos la pone el contador CSS: se quita la nativa del <ol> */
+.lista-pasos {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+/* ==========================================================================
+   BOTÓN FLOTANTE "MIS INGREDIENTES"
+   ========================================================================== */
+.fab-ingredientes {
+  position: fixed;
+  right: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  z-index: 900;
+  width: 84px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: var(--acento);
+  box-shadow: 0 6px 18px rgba(232, 131, 58, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.fab-ingredientes:hover {
+  transform: translateY(-2px);
+  background: var(--acento-oscuro);
+  box-shadow: 0 10px 24px rgba(201, 106, 46, 0.5);
+}
+.fab-ingredientes:focus-visible {
+  outline: 3px solid var(--texto);
+  outline-offset: 3px;
+}
+.fab-icono { font-size: 1.55rem; line-height: 1; }
+.fab-contador {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 11px;
+  background: var(--blanco);
+  color: var(--acento-oscuro);
+  border: 2px solid var(--acento);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Hueco inferior para que el botón no tape la última fila de recetas */
+.pagina-recetario main.container { padding-bottom: 5.5rem; }
+/* El modal de ingredientes mantiene cabecera y pie fijos; solo scrollea el cuerpo */
+.modal.modal-ancho {
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal.modal-ancho .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+/* Reparto en dos columnas equilibradas (tipo masonry) para no dejar huecos */
+.modal.modal-ancho .categorias-ingredientes {
+  display: block;
+  column-count: 2;
+  column-gap: 1rem;
+}
+.modal.modal-ancho .categoria {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+@media (max-width: 560px) {
+  .modal.modal-ancho .categorias-ingredientes { column-count: 1; }
+}
+.ingredientes-intro {
+  margin-bottom: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+.btn-guardar-ingrediente {
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--acento);
+  color: var(--blanco);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-guardar-ingrediente:hover { background: var(--acento-oscuro); }
+@media (max-width: 480px) {
+  .fab-ingredientes {
+    width: 50px;
+    height: 50px;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .fab-icono { font-size: 1.35rem; }
+  .modal.modal-ancho { max-width: 100%; }
+}
+
+
+
+
+
+/* ==========================================================================
+   MEJORAS 2.4 — EDICIÓN DE RECETAS, PESO DE INGREDIENTES Y DETALLE
+   ========================================================================== */
+
+/* --- Modal de receta (crear / editar) --- */
+.modal.modal-receta {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal.modal-receta .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+.form-ayuda {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+.modal-footer.modal-footer-receta {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+.ayuda-txt {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+.modal-footer-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+.btn-txt {
+  background: var(--blanco);
+  color: var(--texto);
+  border: 1px dashed var(--borde-oscuro);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+.btn-txt:hover:not(:disabled) { border-color: var(--acento); color: var(--acento-oscuro); }
+.btn-txt:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* --- Tabla editable de ingredientes --- */
+.tabla-ingredientes {
+  margin-top: 0.8rem;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tabla-cabecera,
+.fila-ingrediente {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 96px 62px 30px;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.4rem 0.55rem;
+}
+.tabla-cabecera {
+  background: #f2ece2;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--texto-suave);
+}
+.fila-ingrediente { border-top: 1px solid var(--borde); }
+.fila-ingrediente:nth-child(odd) { background: #fcfaf6; }
+.fila-nombre {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fila-input {
+  width: 100%;
+  padding: 0.3rem 0.35rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: var(--blanco);
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--texto);
+}
+.fila-input:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 2px rgba(232, 131, 58, 0.18);
+}
+/* Sin flechas nativas en la cantidad: se gana espacio para 3-4 dígitos */
+.fila-cantidad {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.fila-cantidad::-webkit-outer-spin-button,
+.fila-cantidad::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.fila-quitar {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--texto-suave);
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 6px;
+}
+.fila-quitar:hover { color: #a33b1f; border-color: #f0cdbd; background: #fdf0ea; }
+.tabla-ayuda {
+  margin-top: 0.45rem;
+  font-size: 0.74rem;
+  color: var(--texto-suave);
+}
+
+
+/* --- Botón de editar en las tarjetas del recetario --- */
+.tarjeta-editar {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.32rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--texto);
+  font-size: 0.72rem;
+  font-weight: 600;
+  box-shadow: var(--sombra);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.tarjeta-editar:hover {
+  background: var(--acento);
+  color: var(--blanco);
+  transform: translateY(-1px);
+}
+.tarjeta-editar:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+/* --- Puntuación ponderada en las tarjetas --- */
+.tarjeta-puntuacion {
+  margin: 0.5rem 0 0.35rem;
+  padding: 0.5rem 0.6rem;
+  background: #f7f2e9;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.tarjeta-puntuacion-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--texto-suave);
+}
+.tarjeta-puntuacion-cabecera strong {
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  color: var(--acento-oscuro);
+}
+.tarjeta-barra {
+  height: 6px;
+  margin: 0.3rem 0 0.25rem;
+  background: #e6ddcd;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.tarjeta-barra span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--verde-ayer), var(--acento));
+}
+.tarjeta-puntuacion-detalle { font-size: 0.68rem; color: var(--texto-suave); }
+.tarjeta-chip { border: 1px solid transparent; }
+.tarjeta-chip.coincide {
+  background: #e4efd9;
+  border: 1px solid #b9d3a2;
+  color: #3f5f2c;
+}
+.tarjeta-chip.principal { font-weight: 700; }
+
+/* --- Modal de detalle: cabecera y pie fijos, cuerpo con scroll --- */
+.modal.modal-detalle {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal.modal-detalle .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+.modal-detalle .detalle-imagen {
+  height: 210px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.detalle-meta { gap: 0.5rem; align-items: center; }
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  background: #f5f0e8;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--texto);
+}
+.meta-icono { font-size: 0.9rem; line-height: 1; }
+.meta-pill-ok { background: #eef4e6; border-color: #cfe0bc; color: #4d6b36; }
+.meta-pill-falta { background: #fdf0ea; border-color: #f0cdbd; color: #a0522d; }
+.modal-footer.modal-footer-detalle {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.modal-footer-detalle .btn-anadir-semana {
+  width: auto;
+  flex: 1 1 200px;
+  margin-left: auto;
+}
+.btn-editar-receta {
+  background: var(--blanco);
+  color: var(--acento-oscuro);
+  border: 1px solid var(--acento);
+  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.btn-editar-receta:hover { background: var(--acento); color: var(--blanco); }
+.btn-editar-receta:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .tabla-cabecera { display: none; }
+  .fila-ingrediente {
+    grid-template-columns: minmax(0, 1fr) 56px 96px 48px 26px;
+    gap: 0.25rem;
+    padding: 0.4rem 0.35rem;
+  }
+  .fila-input { padding: 0.3rem 0.25rem; }
+  .modal-detalle .detalle-imagen { height: 150px; }
+  .modal-footer-detalle button { flex: 1 1 auto; }
+  .modal-footer-detalle .btn-anadir-semana { flex-basis: 100%; margin-left: 0; }
+  .modal-footer-acciones { justify-content: stretch; }
+  .modal-footer-acciones button { flex: 1 1 auto; }
+}
+@media (max-width: 420px) {
+  .tarjeta-editar-texto { display: none; }
+}
+
+
+/* ==========================================================================
+   NUTRICIÓN 2.5 — KCAL, FILTROS, BALANCE SEMANAL Y RECETAS VEGETARIANAS
+   ========================================================================== */
+
+/* --- Interruptor de menú vegetariano --- */
+.toggle-vegetariano {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0.95rem;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.toggle-vegetariano:hover { border-color: var(--verde-ayer); box-shadow: var(--sombra); }
+.toggle-vegetariano input { width: 16px; height: 16px; accent-color: var(--verde-ayer); }
+.toggle-vegetariano .toggle-ayuda {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+/* --- Filtros de nutrición del recetario --- */
+.filtros-nutricion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--borde);
+}
+.select-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.select-filtro select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--blanco);
+  color: var(--texto);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.chips-rango-kcal { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chips-rango-kcal .chip { font-size: 0.75rem; padding: 0.3rem 0.7rem; }
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.75rem;
+}
+.chip-toggle input { accent-color: var(--verde-ayer); }
+.chip-toggle.activo {
+  background: #e4efd9;
+  border-color: #b9d3a2;
+  color: #3f5f2c;
+}
+
+/* --- Kcal y etiquetas de las tarjetas --- */
+.tarjeta-kcal {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: var(--sombra);
+}
+.tarjeta-kcal-ligera { background: rgba(93, 139, 63, 0.94); }
+.tarjeta-kcal-equilibrada { background: rgba(201, 145, 46, 0.95); }
+.tarjeta-kcal-contundente { background: rgba(178, 76, 51, 0.95); }
+.tarjeta-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.15rem 0 0.45rem;
+}
+.tarjeta-veg,
+.tarjeta-carne,
+.tarjeta-tipo,
+.tarjeta-kcal-texto {
+  font-size: 0.66rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.tarjeta-veg { background: #e4efd9; border-color: #b9d3a2; color: #3f5f2c; font-weight: 600; }
+.tarjeta-carne { background: #f7dcd2; border-color: #e6b8a6; color: #a33b1f; font-weight: 600; }
+.tarjeta-tipo { background: #f0e9dc; color: var(--texto-suave); }
+.tarjeta-kcal-texto { margin-left: auto; color: var(--texto-suave); }
+
+/* --- Kcal en las celdas del calendario (junto a la ×) --- */
+.celda-kcal {
+  position: absolute;
+  top: 0.25rem;
+  right: 1.45rem;
+  z-index: 2;
+  padding: 0.08rem 0.32rem;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  pointer-events: none;
+}
+
+/* --- Panel de balance semanal --- */
+.balance-card { padding: 0.9rem 1.15rem 1rem; }
+.balance-card h3 {
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+}
+/* Banda de balance: contenido en 3 columnas (nota+kcal | checklist | leyenda) */
+#balance-semana {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+#balance-semana > p.vacio-texto { grid-column: 1 / -1; }
+#balance-semana .balance-cabecera { margin-bottom: 0; }
+#balance-semana .balance-leyenda {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.balance-cabecera { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.7rem; }
+.balance-nota {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+.balance-nota small { font-size: 0.55rem; font-weight: 600; margin-left: 1px; }
+.balance-muy-bueno { background: #5d8b3f; }
+.balance-bueno { background: #c9912e; }
+.balance-mejorable { background: #b24c33; }
+.balance-resumen { display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.78rem; color: var(--texto-suave); }
+.balance-resumen strong { font-size: 0.9rem; color: var(--texto); }
+.balance-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.balance-lista li { display: flex; align-items: center; gap: 0.4rem; font-size: 0.76rem; color: var(--texto-suave); }
+.balance-lista li strong { margin-left: auto; color: var(--texto); font-size: 0.76rem; }
+.balance-icono {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #fff;
+}
+.balance-lista li.ok .balance-icono { background: #5d8b3f; }
+.balance-lista li.revisar .balance-icono { background: #c9912e; }
+.balance-leyenda {
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--borde);
+  font-size: 0.68rem;
+  color: var(--texto-suave);
+}
+
+
+
+
+/* --- Bloque de nutrición del detalle --- */
+.detalle-nutricion {
+  margin: 0 0 1.2rem;
+  padding: 0.8rem 0.9rem;
+  background: #faf7f1;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+.nutricion-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+.nutricion-kcal {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+.nutricion-ligera { background: #5d8b3f; }
+.nutricion-equilibrada { background: #c9912e; }
+.nutricion-contundente { background: #b24c33; }
+.nutricion-total { font-size: 0.8rem; color: var(--texto-suave); }
+.nutricion-veg {
+  margin-left: auto;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #e4efd9;
+  border: 1px solid #b9d3a2;
+  color: #3f5f2c;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.nutricion-carne {
+  margin-left: auto;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #f7dcd2;
+  border: 1px solid #e6b8a6;
+  color: #a33b1f;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.nutricion-macros { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.macros-chip {
+  font-size: 0.72rem;
+  color: var(--texto-suave);
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+}
+.macros-chip strong { color: var(--texto); }
+.nutricion-nota { margin-top: 0.5rem; font-size: 0.7rem; color: var(--texto-suave); }
+.meta-pill-kcal { background: #fdf0ea; border-color: #f0cdbd; color: #a0522d; }
+
+/* --- Campos de nutrición del formulario de receta --- */
+.form-group-doble {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.form-group-doble input,
+.form-group-doble select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: var(--blanco);
+  color: var(--texto);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.form-group .check-item.check-vegetariana {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* --- Ajustes responsive --- */
+@media (max-width: 560px) {
+  .form-group-doble { grid-template-columns: 1fr; }
+  .balance-card .balance-nota { width: 46px; height: 46px; flex-basis: 46px; font-size: 0.95rem; }
+}
+@media (max-width: 420px) {
+  .tarjeta-kcal-texto { margin-left: 0; }
+}
+
+
+/* ==========================================================================
+   RESPONSIVE DEL PLANIFICADOR (unico bloque; va al final para ganar la cascada)
+   ========================================================================== */
+@media (max-width: 1080px) {
+  .planificador-top { grid-template-columns: minmax(0, 1fr); }
+  .modulo-acciones {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .modulo-acciones > .ajustes-titulo { flex: 1 1 100%; }
+  .modulo-acciones > .btn-principal,
+  .modulo-acciones > .btn-secundario,
+  .modulo-acciones > .btn-outline,
+  .modulo-acciones > .toggle-vegetariano { flex: 1 1 140px; }
+  #balance-semana { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .panel-inferior { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .panel-inferior > .estadisticas-card { grid-column: 1 / -1; }
+}
+@media (max-width: 900px) {
+  #balance-semana { grid-template-columns: minmax(0, 1fr); }
+  .panel-inferior { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 768px) {
+  .grid-semana { grid-template-columns: 44px repeat(7, minmax(195px, 1fr)); }
+  .celda-titulo { font-size: 0.6rem; }
+}
+@media (max-width: 560px) {
+  .layout-principal .estadisticas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .grid-semana { grid-template-columns: 34px repeat(7, minmax(195px, 1fr)); }
+  .modulo-acciones { flex-direction: column; }
+}

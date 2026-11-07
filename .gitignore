@@ -1,0 +1,22 @@
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Node
+node_modules/
+npm-debug.log*
+.npm/
+package-lock.json
+
+# Salidas de herramientas
+coverage/
+*.log
+
+# Backups locales de recetas
+data/recetas/_backup/

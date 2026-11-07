@@ -1,0 +1,272 @@
+================================================================================
+FRIDGEFLOW — CAMBIOS A FUTURO (HOJA DE RUTA Y AUDITORÍA)
+================================================================================
+Proyecto: FridgeFlow — Planificador de menús semanales
+Versión actual: 2.5 (entrega estática, sin backend)
+Fecha de auditoría: 24/10/2026
+Documento generado a partir del INFORME_FUNCIONALIDAD.txt y revisión del código
+================================================================================
+
+Este documento NO modifica ningún archivo de código existente. Es una hoja de
+ruta con recomendaciones y modificaciones detectadas durante la auditoría del
+proyecto, ordenadas por área y prioridad.
+
+================================================================================
+1. ESTADO ACTUAL DEL PROYECTO (v2.5)
+================================================================================
+
+• 3 páginas HTML estáticas: index.html (planificador), recetario.html,
+  auditoria.html.
+• 28 recetas registradas (20 originales + 8 añadidas en esta iteración).
+• 28 archivos .txt en data/recetas/ con formato editorial completo.
+• 28 imágenes de recetas en assets/images/recetas/ (fotos reales y marcadores).
+• Lógica completa en js/app.js (~148 KB, archivo monolítico).
+• Estilos únicos en css/style.css (~51 KB).
+• Datos nutricionales en data/nutricion.js.
+• Persistencia mediante localStorage (recetas, ingredientes, semana,
+  versión, preferencias).
+• Sincronización opcional con archivos .txt vía File System Access API
+  (Chrome/Edge) o descarga manual.
+• Objetivos nutricionales actualizados a: comida 750-850 kcal, cena
+  650-750 kcal, proteína 35-45 g por comida/cena.
+
+================================================================================
+2. ÁREAS DE MEJORA DETECTADAS
+================================================================================
+
+------------------------------------------------------------
+2.1. EXPERIENCIA DE USUARIO (UX) E INTERFAZ
+------------------------------------------------------------
+
+PENDIENTE DE ALTA PRIORIDAD:
+
+1. Modo oscuro / tema alternativo.
+   La paleta actual es fija (beige/crema + naranja). No hay forma de cambiar
+   el tema ni de adaptarse a la preferencia del sistema (prefers-color-scheme).
+   Impacto: accesibilidad nocturna y preferencia de usuario.
+
+2. Notificaciones tipo "toast" para acciones críticas.
+   Al guardar receta, vaciar semana o descargar .txt no hay retroalimentación
+   visual inmediata salvo recargar o consultar consola. El usuario no sabe si
+   la acción se completó con éxito.
+
+3. Botón FAB "Mis ingredientes" solo visible en recetario.html.
+   En index.html (planificador) no existe acceso rápido a la despensa desde
+   el botón flotante, lo que obliga al usuario a navegar entre páginas para
+   consultar qué tiene en casa.
+
+4. Vista de desayuno y merienda.
+   El calendario solo contempla COMIDA y CENA (14 celdas). No hay soporte
+   para desayuno, merienda o tentempiés, lo que limita la planificación
+   completa del día.
+
+5. Calendario semanal en móvil: scroll horizontal funcional pero poco
+   descubrimiento.
+   En pantallas pequeñas las 7 columnas se desplazan horizontalmente, pero no
+   hay indicador visual claro de que hay más contenido a la derecha.
+
+------------------------------------------------------------
+2.2. FUNCIONALIDAD DEL PLANIFICADOR
+------------------------------------------------------------
+
+PENDIENTE DE ALTA PRIORIDAD:
+
+6. Lista de la compra exportable.
+   Actualmente solo se muestra en pantalla los ingredientes faltantes. No hay
+   opción de exportar a PDF, imprimir, enviar por email o compartir por
+   mensajería (WhatsApp, etc.).
+
+7. Planificación de más de una semana.
+   El menú se genera para 7 días únicamente. No existe histórico de semanas
+   anteriores ni posibilidad de planificar quincenas o meses.
+
+8. Cálculo automático de cantidades de compra acumuladas.
+   Si dos comidas de la semana usan cebolla, la lista de la compra debería
+   sumar las cantidades necesarias y no listar el ingrediente dos veces por
+   separado. Actualmente se listan ingredientes únicos sin acumular cantidades.
+
+9. Alerta de caducidad / "primero lo que entra, primero sale".
+   No hay sistema de fechas de entrada o caducidad de ingredientes en la
+   despensa. No se puede priorizar el uso de alimentos próximos a caducar.
+
+10. Compartido de menú semanal.
+    No hay forma de exportar el menú generado (PDF, imagen, link compartible)
+    para enviarlo a otra persona o imprimirlo para la nevera.
+
+PENDIENTE DE MEDIA PRIORIDAD:
+
+11. Historial de menús generados.
+    No se guardan los menús semanales anteriores. Cada vez que se pulsa
+    "TEJER LA SEMANA POR MÍ" se sobresuelve el anterior sin registro.
+
+12. Botón "USAR LO QUE YA TENGO" con sugerencia automática de platos.
+    Existe el filtro por ingredientes en recetario, pero no una acción
+    directa que diga "con estos 5 ingredientes, ¿qué puedo hacer hoy?".
+
+13. Integración con calendario del sistema (iCal / Google Calendar).
+    No hay exportación de eventos de comida/cena a calendarios externos.
+
+------------------------------------------------------------
+2.3. DATOS NUTRICIONALES Y PERSONALIZACIÓN
+------------------------------------------------------------
+
+PENDIENTE DE ALTA PRIORIDAD:
+
+14. Perfil de usuario con objetivos nutricionales personalizables.
+    Los objetivos de kcal y proteína están hardcodeados en
+    data/nutricion.js (objetivos.kcalComida, kcalCena, kcalDia). No hay
+    interfaz para que el usuario ajuste sus propias metas (ej. dieta
+    hipocalórica, alta proteína, etc.).
+
+15. Filtros de alérgenos y restricciones dietéticas.
+    No existen etiquetas de alérgenos (gluten, lactosa, frutos secos, huevo,
+    pescado, etc.) ni opciones para filtrar recetas sin gluten, sin lactosa,
+    vegano estricto, bajo en sodio, etc.
+
+16. Sustitutos de ingredientes.
+    Si el usuario no tiene un ingrediente de una receta, la app no sugiere
+    alternativas válidas (ej. "si no tienes garbanzos, usa lentejas").
+
+17. Cálculo de macros del menú semanal completo.
+    El balance muestra kcal medias y contadores, pero no desglosa proteínas,
+    grasas e hidratos totales de la semana ni los compara con objetivos
+    semanales de macros.
+
+------------------------------------------------------------
+2.4. CALIDAD DEL CÓDIGO Y MANTENIMIENTO TÉCNICO
+------------------------------------------------------------
+
+PENDIENTE DE ALTA PRIORIDAD:
+
+18. Modularización de js/app.js.
+    app.js tiene ~148 KB y contiene toda la lógica (planificador, recetario,
+    auditoría, modales, persistencia, nutrición). Debería dividirse en
+    módulos por responsabilidad (planificador.js, recetario.js, storage.js,
+    nutricion.js, ui.js) para facilitar el mantenimiento.
+
+19. Ausencia de tests unitarios.
+    No hay ningún archivo de test ni framework de pruebas configurado. Cualquier
+    cambio futuro requiere pruebas manuales completas.
+
+20. Validación de formularios débil.
+    El formulario de "+ AÑADIR RECETA" no valida campos obligatorios, formatos
+    de cantidad, ni evita ingredientes duplicados antes de guardar.
+
+21. Soporte limitado de File System Access API.
+    Solo funciona en Chrome/Edge. En otros navegadores se descarga el .txt y
+    el usuario debe copiarlo manualmente. No hay aviso claro de esta
+    limitación ni alternativa de sincronización en la nube.
+
+PENDIENTE DE MEDIA PRIORIDAD:
+
+22. División de css/style.css en archivos por componente.
+    style.css tiene ~51 KB con todo el proyecto. Se podría separar en
+    componentes (calendar.css, cards.css, modals.css, responsive.css).
+
+23. Lazy loading de imágenes.
+    Todas las imágenes de recetas se cargan de golpe. En el recetario con 28
+    tarjetas, esto puede afectar el rendimiento en conexiones lentas.
+
+24. Configuración de linter y formateador (ESLint, Prettier).
+    No hay configuración de estilo de código, lo que dificulta contribuciones
+    futuras y genera inconsistencias en el formato.
+
+25. Service Worker y PWA.
+    La app funciona offline al abrir el HTML directamente, pero no está
+    registrada como PWA (no hay manifest.json ni service worker). No se puede
+    "instalar" en la pantalla de inicio del móvil.
+
+------------------------------------------------------------
+2.5. CONTENIDO Y RECETAS
+------------------------------------------------------------
+
+PENDIENTE DE MEDIA PRIORIDAD:
+
+26. Inconsistencia en formatos de imagen.
+    Las recetas originales usan mezcla de .jfif, .webp, .jpg, .png, .svg.
+    Las 8 recetas nuevas usan .JPG (mayúsculas). Se debería unificar a un solo
+    formato (preferiblemente .webp o .jpg) y extensiones en minúsculas.
+
+27. Sistema de valoraciones y favoritos de recetas.
+    Los usuarios no pueden puntuar recetas ni marcarlas como favoritas. No hay
+    forma de saber cuáles son las más populares o las preferidas del usuario.
+
+28. "Últimas recetas vistas" o historial de navegación.
+    No se registra qué recetas ha consultado el usuario recientemente.
+
+29. Recetas por estación o temporada.
+    No existe etiquetado de temporada (primavera, verano, otoño, invierno) ni
+    sugerencias basadas en la fecha actual.
+
+------------------------------------------------------------
+2.6. ACCESIBILIDAD (A11Y)
+------------------------------------------------------------
+
+PENDIENTE DE MEDIA PRIORIDAD:
+
+30. Revisión de contraste de colores.
+    Se debería auditar que todos los textos tengan suficiente contraste contra
+    su fondo según WCAG 2.1, especialmente el texto gris sobre fondo beige.
+
+31. Navegación completa por teclado.
+    Algunos modales y botones pueden no tener enfoque visible o orden de
+    tabulación lógico.
+
+32. Etiquetas ARIA en componentes dinámicos.
+    Los modales, el calendario y los filtros podrían mejorar sus atributos
+    ARIA para lectores de pantalla.
+
+------------------------------------------------------------
+2.7. INTERNACIONALIZACIÓN (I18N)
+------------------------------------------------------------
+
+PENDIENTE DE BAJA PRIORIDAD:
+
+33. Soporte para múltiples idiomas.
+    Todo el contenido está en español sin sistema de traducción. Una estructura
+    de archivos .json por idioma permitiría ampliar el proyecto a inglés u
+    otros idiomas.
+
+================================================================================
+3. NOTAS TÉCNICAS SOBRE EL ESTADO ACTUAL
+================================================================================
+
+• El proyecto cumple todos los requisitos no negociables del
+  INFORME_FUNCIONALIDAD.txt (web 100% estática, sin servidor, sin lorem ipsum,
+  tres auditorías integradas, simulación de menú sin IA externa).
+
+• Las 8 recetas nuevas añadidas cumplen los objetivos nutricionales revisados
+  (comida 750-850 kcal / 35-45g proteína; cena 650-750 kcal / 35-45g proteína).
+
+• El informe de auditoría (auditoria.html) marca todos los hallazgos como
+  "Resuelto" para la versión 2.5.
+
+• El archivo readme.md aún indica "20 recetas" y debería actualizarse a 28
+  tras esta iteración.
+
+================================================================================
+4. PRIORIZACIÓN SUGERIDA PARA PRÓXIMA ITERACIÓN (v2.6)
+================================================================================
+
+FASE 1 — Crítica (UX y datos):
+  - Modo oscuro / prefers-color-scheme
+  - Notificaciones toast para acciones
+  - Lista de la compra exportable (PDF o imprimir)
+  - Perfil de usuario con objetivos personalizables
+  - Modularización de app.js
+
+FASE 2 — Importante (funcionalidad):
+  - Planificación multi-semana y historial
+  - Acumulación de cantidades en lista de la compra
+  - Filtros de alérgenos y restricciones dietéticas
+  - PWA (manifest + service worker)
+
+FASE 3 — Deseable (contenido y pulido):
+  - Valoraciones y favoritos de recetas
+  - Unificación de formatos de imagen
+  - Tests unitarios
+  - i18n (multidioma)
+
+================================================================================
+FIN DEL DOCUMENTO CAMBIOS_A_FUTURO.txt
+================================================================================

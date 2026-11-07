@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FridgeFlow — Planificador de menús semanales</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="dot"></span>
+        Fridge<span style="color:var(--acento)">Flow</span>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html" class="activo">Planificador</a>
+        <a href="recetario.html">Recetario</a>
+        <a href="auditoria.html">Auditoría</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#coste-olvidar">El coste de olvidar</a>
+        <a href="#precios">Precios</a>
+      </nav>
+      <div class="header-actions">
+        <span class="alimentos-contador" id="contador-alimentos">0 alimentos</span>
+        <button class="btn-empezar" id="btn-empezar">EMPEZAR</button>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <section class="hero">
+      <h1>Cocina con lo que ya tienes en casa</h1>
+    </section>
+
+    <div class="layout-principal">
+    <section class="planificador">
+      <div class="planificador-top">
+        <div class="calendario-wrap">
+          <div class="grid-semana" id="grid-semana" aria-label="Calendario semanal de comidas y cenas"></div>
+          <p class="calendario-ayuda">Pulsa una celda vacía para elegir un plato, o un plato para ver la receta completa. Pasa el ratón por encima y usa la × para quitarlo.</p>
+        </div>
+        <div class="modulo-acciones">
+          <h3 class="ajustes-titulo">Ajustes</h3>
+          <button class="btn-principal" id="btn-tejer-semana">Crear semana</button>
+          <button class="btn-secundario" id="btn-vaciar-semana">Vaciar</button>
+          <button class="btn-outline" id="btn-anadir-receta">Añadir receta</button>
+          <label class="toggle-vegetariano" for="toggle-vegetariano">
+            <input type="checkbox" id="toggle-vegetariano" checked>
+            <span class="toggle-texto">Vegetariano</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="sidebar-card balance-card">
+        <h3>Balance de la semana</h3>
+        <div id="balance-semana"></div>
+      </div>
+
+      <div class="panel-inferior">
+        <div class="sidebar-card platos-card">
+          <h3>Platos sugeridos</h3>
+          <div class="platos-sugeridos" id="platos-sugeridos"></div>
+          <p class="sugeridos-leyenda">Ordenados por los que menos ingredientes te faltan. <strong>Reutiliza</strong> = ingredientes que ya están en tu menú semanal.</p>
+        </div>
+
+        <div class="sidebar-card estadisticas-card">
+          <h3>Estadísticas</h3>
+          <div class="estadisticas">
+            <div class="stat-card" title="Número de celdas del calendario con un plato asignado">
+              <div class="stat-valor" id="stat-platos">0</div>
+              <div class="stat-label">Platos colocados</div>
+            </div>
+            <div class="stat-card" title="Ingredientes distintos que suman todos los platos del menú">
+              <div class="stat-valor" id="stat-ingredientes">0</div>
+              <div class="stat-label">Ingredientes distintos</div>
+            </div>
+            <div class="stat-card" title="Porcentaje de ingredientes del menú que ya tienes en tu despensa">
+              <div class="stat-valor" id="stat-solapamiento">0%</div>
+              <div class="stat-label">Solapamiento con despensa</div>
+            </div>
+            <div class="stat-card" title="Estimación de 1,80 € por cada ingrediente que te falta comprar">
+              <div class="stat-valor" id="stat-coste">0,00 €</div>
+              <div class="stat-label">Coste estimado</div>
+            </div>
+            <div class="stat-card" title="Suma de los tiempos de preparación de los platos del menú">
+              <div class="stat-valor" id="stat-tiempo">0 min</div>
+              <div class="stat-label">Tiempo en cocina</div>
+            </div>
+            <div class="stat-card" title="Ingredientes del menú que ya tenías en casa (alimentos rescatados)">
+              <div class="stat-valor" id="stat-rescatados">0</div>
+              <div class="stat-label">Alimentos rescatados</div>
+            </div>
+            <div class="stat-card" title="Media de calorías por comida del menú semanal">
+              <div class="stat-valor" id="stat-kcal">—</div>
+              <div class="stat-label">kcal media/comida</div>
+            </div>
+            <div class="stat-card" title="Número de recetas distintas que aparecen en el menú">
+              <div class="stat-valor" id="stat-variedad">0</div>
+              <div class="stat-label">Recetas distintas</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card compra-card">
+          <h3>Lista de la compra</h3>
+          <p class="compra-intro">Solo los ingredientes que te faltan para completar tu menú semanal.</p>
+          <div id="lista-compra">
+            <p class="vacio-texto">Genera un menú para ver tu lista de la compra.</p>
+          </div>
+          <a href="recetario.html" class="btn-outline" style="display:inline-block;width:100%;text-align:center;">Ver recetario</a>
+        </div>
+
+        <div class="sidebar-card spot">
+          <strong>SPOT PUBLICITARIO — 15 segundos</strong>
+          <p style="margin-top:0.5rem;font-size:0.75rem;">Contenedor simulado para spot publicitario (Seedance 2 — futura iteración).</p>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <section id="como-funciona" class="section">
+      <h2 class="section-title">Cómo funciona</h2>
+      <div class="pasos">
+        <div class="paso"><div class="paso-numero">1</div><h4>Añade tus ingredientes</h4><p>Dinos qué tienes en la nevera y la despensa.</p></div>
+        <div class="paso"><div class="paso-numero">2</div><h4>Teje tu semana</h4><p>Generamos un menú semanal con lo que ya tienes.</p></div>
+        <div class="paso"><div class="paso-numero">3</div><h4>Cocina y ahorra</h4><p>Reduce el desperdicio y compra solo lo que falta.</p></div>
+      </div>
+    </section>
+  </main>
+  <!-- Modal: Crear o editar receta -->
+  <div class="modal-overlay" id="modal-add">
+    <div class="modal modal-receta">
+      <div class="modal-header">
+        <h3 id="titulo-modal-receta">Nueva receta</h3>
+        <button class="cerrar-modal" id="cerrar-add" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-receta">
+          <div class="form-group">
+            <label>Nombre de la receta</label>
+            <input type="text" id="receta-nombre" required placeholder="Ej. Tortilla de patatas">
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea id="receta-descripcion" rows="3" placeholder="Breve descripción del plato..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Tiempo de preparación</label>
+            <input type="text" id="receta-tiempo" placeholder="Ej. 30 min">
+          </div>
+          <div class="form-group">
+            <label>Porciones base</label>
+            <input type="number" id="receta-porciones" value="4" min="1" max="24">
+          </div>
+          <div class="form-group">
+            <label for="receta-imagen">Fotografía (opcional)</label>
+            <input type="text" id="receta-imagen" list="lista-imagenes-recetas" placeholder="plato-ejemplo.jpg">
+            <datalist id="lista-imagenes-recetas"></datalist>
+            <p class="form-ayuda">Nombre del archivo dentro de assets/images/recetas/. Déjalo vacío si no tienes foto.</p>
+          </div>
+          <div class="form-group">
+            <label for="receta-kcal">Calorías por ración (opcional)</label>
+            <div class="form-group-doble">
+              <input type="number" id="receta-kcal" min="0" max="3000" step="1" placeholder="Se calcula solo">
+              <select id="receta-tipo" aria-label="Tipo de plato" title="Tipo de plato">
+                <option value="">Tipo: automático</option>
+                <option value="legumbre">Legumbre</option>
+                <option value="cereal">Cereal</option>
+                <option value="pasta">Pasta</option>
+                <option value="huevo">Huevo</option>
+                <option value="verdura">Verdura</option>
+                <option value="proteina">Proteína vegetal</option>
+                <option value="tuberculo">Tubérculo</option>
+                <option value="elaborado">Elaborado</option>
+                <option value="carne">Carne</option>
+              </select>
+            </div>
+            <p class="form-ayuda">Deja las calorías vacías para calcularlas a partir de los ingredientes.</p>
+            <label class="check-item check-vegetariana"><input type="checkbox" id="receta-vegetariana" checked> Receta vegetariana</label>
+          </div>
+          <div class="form-group">
+            <label>Ingredientes de la receta</label>
+            <p class="form-ayuda">Pulsa los ingredientes que lleva el plato y ajusta cantidad, unidad y peso.</p>
+            <div class="chips-categorias" id="ingredientes-categorias"></div>
+            <div style="margin-top:0.8rem;">
+              <label style="display:block;font-size:0.8rem;font-weight:600;margin-bottom:0.3rem;">Ingrediente nuevo</label>
+              <input type="text" id="ingrediente-nuevo" placeholder="Nombre del ingrediente">
+              <select id="ingrediente-categoria">
+                <option value="Verduras">Verduras</option>
+                <option value="Proteínas">Proteínas</option>
+                <option value="Lácteos">Lácteos</option>
+                <option value="Despensa">Despensa</option>
+                <option value="Especias">Especias</option>
+              </select>
+              <button type="button" id="btn-agregar-ingrediente" style="margin-top:0.5rem;padding:0.4rem 0.8rem;background:var(--acento);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">Añadir ingrediente</button>
+            </div>
+            <div id="ingredientes-seleccionados" style="margin-top:1rem;"></div>
+          </div>
+          <div class="form-group">
+            <label>Equipamiento necesario</label>
+            <div class="equipamiento-checks">
+              <label class="check-item"><input type="checkbox" name="equipamiento" value="Sartén"> Sartén</label>
+              <label class="check-item"><input type="checkbox" name="equipamiento" value="Horno"> Horno</label>
+              <label class="check-item"><input type="checkbox" name="equipamiento" value="Airfryer"> Airfryer</label>
+              <label class="check-item"><input type="checkbox" name="equipamiento" value="Microondas"> Microondas</label>
+              <label class="check-item"><input type="checkbox" name="equipamiento" value="Cacerola"> Cacerola</label>
+              <label class="check-item"><input type="checkbox" name="equipamiento" value="Licuadora"> Licuadora</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Método de elaboración (pasos)</label>
+            <textarea id="receta-pasos" rows="6" placeholder="Escribe los pasos separados por saltos de línea..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer modal-footer-receta">
+        <p class="ayuda-txt" id="ayuda-txt"></p>
+        <div class="modal-footer-acciones">
+          <button class="btn-txt" id="btn-descargar-txt" type="button" title="Descarga el archivo .txt de esta receta">⬇ Descargar .txt</button>
+          <button class="btn-cancelar" id="cerrar-add-2">Cancelar</button>
+          <button class="btn-guardar" id="btn-guardar-receta">Guardar receta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Detalle de receta -->
+  <div class="modal-overlay" id="modal-detalle">
+    <div class="modal modal-detalle">
+      <div class="modal-header">
+        <h3 id="detalle-titulo">Título de la receta</h3>
+        <button class="cerrar-modal" id="cerrar-detalle" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detalle-imagen" id="detalle-imagen">🍽️</div>
+        <div class="detalle-meta" id="detalle-meta"></div>
+        <div class="detalle-personas">
+          <label for="detalle-personas">Número de personas</label>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" id="personas-menos" aria-label="Quitar una persona">−</button>
+            <input type="number" id="detalle-personas" value="1" min="1" max="24" inputmode="numeric" onchange="app.escalarIngredientes()">
+            <button type="button" class="stepper-btn" id="personas-mas" aria-label="Añadir una persona">+</button>
+          </div>
+          <p class="detalle-personas-ayuda">Las cantidades de los ingredientes se ajustan solas.</p>
+        </div>
+        <div class="detalle-nutricion" id="detalle-nutricion"></div>
+        <div class="detalle-ingredientes">
+          <h4>Ingredientes</h4>
+          <ul class="lista-ingredientes-detalle" id="detalle-ingredientes"></ul>
+        </div>
+        <div class="detalle-pasos" style="margin-top:1.2rem;">
+          <h4>Método de elaboración</h4>
+          <ol class="lista-pasos" id="detalle-pasos"></ol>
+        </div>
+        <div class="detalle-equipamiento" style="margin-top:1rem;">
+          <h4>Equipamiento necesario</h4>
+          <div class="equipamiento-chips" id="detalle-equipamiento"></div>
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-detalle">
+        <button class="btn-cancelar" id="cerrar-detalle-2">Cerrar</button>
+        <button class="btn-editar-receta" id="btn-editar-detalle" type="button">✏️ Editar receta</button>
+        <button class="btn-anadir-semana" id="btn-anadir-semana">Añadir a mi semana</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Elegir plato para una celda del calendario -->
+  <div class="modal-overlay" id="modal-elegir">
+    <div class="modal modal-pequeno">
+      <div class="modal-header">
+        <h3>Elegir plato · <span id="elegir-titulo"></span></h3>
+        <button class="cerrar-modal" id="cerrar-elegir" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="search" id="elegir-buscar" placeholder="Buscar receta por nombre..." aria-label="Buscar receta">
+        <div class="lista-elegir" id="elegir-lista"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" id="btn-elegir-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/nutricion.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+================================================================================
+INFORME DE OBJETIVOS Y FUNCIONALIDAD — FRIDGEFLOW
+================================================================================
+Proyecto: FridgeFlow — Planificador de menús semanales
+Cliente / Usuario: Usuario final (hogar)
+Fecha: 24/10/2026
+Versión: 2.5 (entrega estática, sin backend)
+================================================================================
+
+1. FINALIDAD DEL PROYECTO
+--------------------------------------------------------------------------------
+FridgeFlow es una herramienta web estática que permite crear recetas y menús
+semanales con los alimentos que el usuario ya tiene en casa. Su objetivo es
+reducir el desperdicio de alimentos, ahorrar tiempo y dinero, y facilitar la
+planificación de la cocina doméstica sin necesidad de servidor, base de datos
+ni conexión a servicios de IA externos.
+
+La web debe poder abrirse directamente haciendo doble clic en index.html en
+cualquier navegador moderno.
+
+================================================================================
+2. OBJETIVOS PRINCIPALES
+--------------------------------------------------------------------------------
+a) Crear menús semanales automáticos basados en los ingredientes disponibles.
+b) Evitar el desperdicio alimentario rescatando alimentos ya existentes.
+c) Generar una lista de la compra con solo los ingredientes faltantes.
+d) Ofrecer un recetario navegable y filtrable por ingredientes.
+e) Permitir al usuario añadir sus propias recetas y editarlas.
+f) Proporcionar una auditoría de calidad integrada del proyecto.
+g) Mantener todo como archivos estáticos (HTML, CSS, JS) para uso sin servidor.
+
+================================================================================
+3. ESTRUCTURA DE ARCHIVOS
+--------------------------------------------------------------------------------
+fridgeflow/
+├── index.html              # Planificador semanal (LUN-DOM, COMIDA/CENA)
+├── recetario.html          # Recetario con filtro por ingredientes
+├── auditoria.html          # Auditoría integrada (3-en-1)
+├── readme.md               # Instrucciones de uso
+├── INFORME_FUNCIONALIDAD.txt  # Este documento
+├── css/
+│   └── style.css           # Estética beige/crema, tarjetas, modales, layout corregido
+├── js/
+│   └── app.js              # Lógica completa: localStorage, filtros, nutrición, modales, recetas
+├── data/
+│   ├── nutricion.js        # Kcal/macros por ingrediente y combinaciones saludables semanales
+│   └── recetas/*.txt       # 20 recetas editoriales (peso, kcal, tipo, macros)
+├── assets/
+│   ├── images/recetas/     # 11 fotografías reales + 9 marcadores SVG de las recetas nuevas
+│   ├── images/sugeridos/   # Reservada para futuras miniaturas (hoy se reutiliza images/recetas)
+│   └── videos/             # Reservada para el spot publicitario (futura iteración)
+================================================================================
+4. PÁGINAS Y FUNCIONALIDADES
+--------------------------------------------------------------------------------
+
+4.1 INDEX.HTML — PLANIFICADOR SEMANAL
+--------------------------------------------------------------------------------
+• Cabecera con logo FridgeFlow, navegación (Planificador, Recetario, Auditoría,
+  Cómo funciona, El coste de olvidar, Precios), contador de alimentos y botón
+  "EMPEZAR".
+• Botones principales:
+  - "TEJER LA SEMANA POR MÍ" (naranja, acento): genera un menú semanal
+    automático simulado sin IA real, con COMBINACIONES SALUDABLES: prueba hasta
+    70 semanas, las puntúa contra los objetivos y se queda con la mejor.
+  - Interruptor "Menú vegetariano" (activo por defecto): excluye del menú
+    automático las 2 recetas con carne; se guarda en localStorage.
+  - "VACIAR LA SEMANA": limpia todas las celdas y estadísticas.
+  - "+ AÑADIR RECETA": abre modal para crear una nueva receta.
+• Calendario semanal: 7 columnas (LUN…DOM) × 2 filas (COMIDA / CENA), con la
+  etiqueta de fila a la izquierda, tal y como muestra el diseño de referencia.
+• Cada celda es una tarjeta con la fotografía real del plato, un degradado
+  oscuro, el nombre en blanco sobre la imagen y una etiqueta de KCAL. Incluye
+  la etiqueta verde "DE AYER" cuando el plato son sobras del día anterior y una
+  "×" (al pasar el ratón) para quitarlo del menú.
+• Celdas vacías: muestran un "+" y abren el modal "Elegir plato" (buscador y
+  listado con miniatura, kcal y marca vegetariana) para asignar cualquier receta
+  a ese hueco.
+• Estadísticas calculadas en tiempo real:
+  - Platos colocados: celdas ocupadas del calendario.
+  - Ingredientes distintos: unión de los ingredientes de los platos del menú.
+  - Solapamiento con despensa: % de esos ingredientes que ya tienes en casa.
+  - Coste estimado: 1,80 € por cada ingrediente que falta comprar.
+  - Tiempo en cocina: suma de los tiempos de preparación del menú.
+  - Alimentos rescatados: ingredientes del menú que ya estaban en la despensa.
+  - Kcal media/comida: media de las calorías por ración de las comidas.
+  - Recetas distintas: variedad del menú.
+• Barra lateral (a la derecha del calendario):
+  - BALANCE DE LA SEMANA: nota /100, kcal media por comida y día (comida +
+    cena) y checklist de legumbres, verduras, proteína vegetal, fritos/
+    elaborados, huevos y variedad.
+  - PLATOS SUGERIDOS: miniatura + nombre + "TIEMPO · KCAL · FALTA n · REUTILIZA n",
+    ordenados por los que menos ingredientes necesitan comprar.
+  - LISTA DE LA COMPRA: ingredientes del menú que no están en la despensa, con
+    recuento ("Te faltan X de Y") y botón al recetario.
+  - SPOT PUBLICITARIO 15 SEGUNDOS (contenedor simulado, Seedance 2).
+• Sección "Cómo funciona" con 3 pasos explicativos.
+• Las celdas ocupadas abren el detalle de la receta; las vacías, el selector.
+
+4.2 RECETARIO.HTML — RECETARIO CON FILTRO POR INGREDIENTES
+--------------------------------------------------------------------------------
+• Título: "Elige qué cocinar con lo que tienes".
+• Explicación: selecciona los ingredientes disponibles y el recetario puntúa
+  cada receta según la importancia (peso 1-5) de lo que coincide. Cada tarjeta
+  muestra sus kcal por ración y su perfil (ligera/equilibrada/contundente).
+• Botón "+ AÑADIR RECETA" (naranja oscuro).
+• Filtros de ingredientes:
+  - Botón "Ver todas las recetas".
+  - Chips de ingredientes únicos extraídos de las recetas.
+  - Selección múltiple con PUNTUACIÓN PONDERADA: cobertura = suma de los pesos
+    de los ingredientes que tienes ÷ suma de los pesos de todos los ingredientes
+    de la receta. Se ordena por esa puntuación (y por nº de coincidencias a
+    igualdad), no por coincidencia exacta de todos ni por contar ingredientes
+    al mismo peso: los garbanzos (peso 5) pesan mucho más que la sal (peso 1).
+  - Cada tarjeta muestra el porcentaje, una barra de progreso, "x de y
+    ingredientes" y el peso acumulado; los chips coincidentes se resaltan.
+  - Contador de recetas encontradas.
+• Filtros de nutrición:
+  - "Ordenar por": coincidencia ponderada, menos kcal, más kcal o nombre.
+  - Chips por rango de kcal: todas, ligeras (≤450), equilibradas (450-650) y
+    contundentes (>650).
+  - Chip "Solo vegetarianas".
+• Botón flotante "🥕" (esquina inferior derecha) con el número de ingredientes de
+  la despensa: abre la ventana "Mis ingredientes" sin ocupar espacio en la página.
+• Ventana "Mis ingredientes":
+  - Listado categorizado (Verduras, Proteínas, Lácteos, Despensa, Especias).
+  - Cada ingrediente es un chip editable/eliminable (×).
+  - Formulario para añadir ingrediente nuevo con categoría seleccionable.
+  - Todo se guarda en localStorage automáticamente.
+• Grid de recetas: 20 tarjetas con fotografía real o marcador SVG, insignia de
+  kcal por ración con semáforo, etiquetas vegetariana/vegana y tipo de plato,
+  título, tiempo, porciones, ingredientes que faltan, descripción y chips de
+  ingredientes (los coincidentes en verde y los principales en negrita).
+• Botón "✏️ Editar" en la esquina superior derecha de cada tarjeta.
+• Clic en una tarjeta abre el modal de detalle de la receta.
+
+4.3 AUDITORIA.HTML — AUDITORÍA INTEGRADA (ÚNICO ENTREGABLE)
+--------------------------------------------------------------------------------
+• Tres bloques integrados en una sola página:
+  1. Diseño visual y experiencia de usuario (paleta, tipografía, tarjetas, CTA).
+  2. Funcionalidad y pruebas adversariales (vaciar semana, regenerar menú,
+     navegación directa entre archivos HTML sin servidor).
+  3. Copywriting y contenido editorial (sin lorem ipsum, tono profesional,
+     textos realistas).
+• Cada bloque incluye: hallazgos, acciones aplicadas y estado (✅ Resuelto).
+• Veredicto final: "APROBADO PARA ENTREGA".
+
+================================================================================
+5. FUNCIONALIDADES DEL MODAL "CREAR / EDITAR RECETA"
+--------------------------------------------------------------------------------
+Disponible desde index.html y recetario.html. Se abre con "+ AÑADIR RECETA"
+(modo alta) o con el botón "✏️ Editar" de una tarjeta / del detalle (modo
+edición, con todos los campos precargados).
+Campos del formulario:
+• Nombre de la receta (obligatorio).
+• Descripción (textarea).
+• Tiempo de preparación (texto libre, ej. "30 min").
+• Porciones base (número, default 4).
+• Calorías por ración (opcional; vacío = se calculan con los ingredientes).
+• Tipo de plato (automático o legumbre, cereal, pasta, huevo, verdura, proteína
+  vegetal, tubérculo, elaborado, carne) y casilla "Receta vegetariana".
+• Fotografía (opcional, con lista de archivos de assets/images/recetas/).
+• Ingredientes: chips por categorías (activos/inactivos) que añaden el
+  ingrediente a una tabla editable con cantidad, unidad y PESO (1-5).
+  También se puede escribir un ingrediente nuevo con su categoría.
+• Equipamiento necesario: checkboxes (Sartén, Horno, Airfryer, Microondas,
+  Cacerola, Licuadora).
+• Método de elaboración: textarea con pasos (se separan por saltos de línea).
+• Botones: "⬇ Descargar .txt", Cancelar y "Guardar receta"/"Guardar cambios".
+Al guardar: la receta se crea (id receta-usuario-<timestamp>) o se actualiza en
+sitio conservando su id, su imagen y las referencias del menú semanal; se
+persiste en localStorage y se recargan planificador y recetario. Después se
+regenera su archivo .txt (ver sección 8).
+
+================================================================================
+6. FUNCIONALIDADES DEL MODAL "DETALLE DE RECETA"
+--------------------------------------------------------------------------------
+Se abre al hacer clic en:
+• Una tarjeta del recetario.
+• Una celda ocupada del planificador semanal.
+Contenido:
+• Fotografía grande del plato (archivo real en assets/images/recetas/).
+• Metadatos en pastillas: tiempo de preparación, porciones base, kcal por ración
+  y estado de los ingredientes (todos en casa / n por comprar).
+• Selector de número de personas con botones − / + e input numérico estilizado,
+  que recalcula las cantidades proporcionalmente.
+• Bloque de nutrición: kcal por ración y total para los comensales, etiqueta
+  vegetariana/vegana y macros por ración (proteína, hidratos, grasa y fibra).
+• Lista de ingredientes escalada (nombre a la izquierda, cantidad alineada a la
+  derecha, una sola viñeta y separadores punteados), con la etiqueta "falta" en
+  los ausentes.
+• Método de elaboración (pasos numerados) y equipamiento necesario (chips).
+• Cabecera y pie fijos: solo se desplaza el cuerpo del modal.
+• Botones: Cerrar, "✏️ Editar receta" y "Añadir a mi semana" (asigna la receta al
+  primer hueco libre del calendario y avisa si la semana ya está completa).
+
+================================================================================
+7. PERSISTENCIA DE DATOS
+--------------------------------------------------------------------------------
+• localStorage se usa para guardar:
+  - fridgeflow_recetas: array de recetas (20 por defecto + las creadas).
+  - fridgeflow_ingredientes: despensa del usuario por categorías.
+  - fridgeflow_semana: menú (clave "DIA-COMIDA"/"DIA-CENA" con receta y "de ayer").
+  - fridgeflow_version: versión del esquema de datos (2.5).
+  - fridgeflow_preferencias: preferencias del planificador (menú vegetariano).
+• Catálogo frente a despensa: el catálogo tiene los 59 ingredientes utilizables en
+  recetas y la despensa inicial incluye 37; el resto son los que aparecen
+  como "falta" y en la lista de la compra.
+• Migración 2.3 → 2.4: las 10 recetas por defecto se recargan con su peso,
+  conservando las recetas propias y las recetas por defecto ya editadas
+  (marcadas con editada: true).
+• Futura iteración: se podrá conectar a una base de datos en la nube (tipo
+  Firestore) sin cambiar la lógica de frontend.
+
+================================================================================
+8. PESO, CALORÍAS, COMBINACIONES SALUDABLES Y SINCRONIZACIÓN CON LOS .TXT
+--------------------------------------------------------------------------------
+8.1 PESO POR INGREDIENTE
+• Cada ingrediente de cada receta guarda un campo "peso" de 1 a 5:
+  5 = protagonista del plato (garbanzos, pollo, calabaza, pasta).
+  4 = base o acompañamiento principal (patatas, tomate frito, coliflor, huevos).
+  3 = verdura de sofrito o especia clave (cebolla, pimiento, pimentón, arroz).
+  2 = condimento con presencia (aceite, ajo, limón, yogur, caldo).
+  1 = condimento mínimo (sal, pimienta).
+• Las 20 recetas por defecto llevan una tabla de pesos curada; las recetas
+  antiguas o creadas sin peso se normalizan con una heurística equivalente
+  (sal/pimienta/especias 1, aceite/caldo 2, cebolla/ajo 3, cantidad ≥300 g/ml 5,
+  resto 4).
+• El peso es editable en el formulario de receta y se exporta al .txt.
+
+8.2 FILTRO PONDERADO
+• puntuacion = Σ pesos de los ingredientes seleccionados presentes
+                ÷ Σ pesos de todos los ingredientes de la receta.
+• Orden: puntuación descendente, después nº de coincidencias y después nombre.
+• Ejemplo: ensalada de garbanzos + coliflor con "Garbanzos" y "Sal" =
+  (5+1)/22 = 27 %; solo "Sal" = 1/22 = 5 %. Con "Garbanzos + Coliflor" la
+  ensalada sube al 41 % y queda por delante del curry (16 %).
+• La tarjeta muestra el porcentaje, una barra y el peso acumulado; los chips
+  coincidentes se resaltan en verde.
+
+8.3 CALORÍAS Y MACROS
+• data/nutricion.js guarda, por cada ingrediente, kcal, proteína, hidratos, grasa
+  y fibra por 100 g/ml, su grupo de alimento y los gramos por unidad para
+  convertir ud, diente, cucharadita, pizca, rebanada u hoja.
+• kcalReceta() multiplica la cantidad real de cada ingrediente por su valor
+  energético y kcalPorRacion() lo divide entre las porciones base. Se admiten
+  kcal manuales por ración (campo opcional del formulario), que tienen prioridad.
+• Semáforo por ración: ligera (≤450), equilibrada (450-650) y contundente (>650).
+• El detalle muestra kcal por ración, kcal totales para los comensales elegidos
+  y macros por ración (proteína, hidratos, grasa y fibra).
+
+8.4 COMBINACIONES SALUDABLES Y PLANIFICADOR
+• data/nutricion.js define combinaciones de día completo (comida + cena):
+  legumbre + verdura, pasta + verdura, cereal + proteína vegetal, legumbre +
+  proteína vegetal, guiso tradicional + cena ligera, pasta + proteína vegetal y
+  domingo de cuchara.
+• La plantilla semanal asigna una combinación a cada día y los objetivos fijan
+  legumbres ≥3, 7 comidas con verdura, proteína vegetal ≥5, fritos/elaborados
+  ≤3, huevos ≤5, variedad ≥10, kcal/comida 400-700, kcal/cena 300-600 y
+  kcal/día 650-1500 (comida + cena).
+• tejerSemana() genera hasta 70 semanas, las puntúa y se queda con la mejor:
+  fuerza el tipo principal en la comida, puntúa kcal, despensa, repetición,
+  tiempo y elaborados, y solo reutiliza sobras del mismo tipo de plato.
+• El panel "Balance de la semana" muestra la nota /100, kcal medias y un
+  checklist con los contadores frente a los objetivos.
+• Interruptor "Menú vegetariano" (por defecto activo, guardado en
+  fridgeflow_preferencias): excluye del menú automático las recetas con carne.
+  La asignación manual no se bloquea.
+
+8.5 ARCHIVOS .TXT
+• Al guardar una receta se genera su .txt con el formato exacto de
+  data/recetas/ (cabecera RECETA, Imagen, Tiempo, Porciones, Tipo, Vegetariano,
+  Calorías, Macros, DESCRIPCIÓN, INGREDIENTES con "— Categoría — peso N",
+  EQUIPAMIENTO, PASOS, FIN DE RECETA).
+• Con File System Access API (Chrome/Edge) se abre el selector de archivos con
+  el nombre data/recetas/<slug>.txt propuesto y se sobrescribe el archivo real.
+• Si el navegador no la soporta, se cancela o falla, el .txt se descarga para
+  copiarlo manualmente en data/recetas/.
+• El botón "⬇ Descargar .txt" del formulario exporta en cualquier momento.
+• La app sigue leyendo las recetas de localStorage: no necesita servidor.
+
+===============================================================================
+9. ESTÉTICA Y DISEÑO VISUAL
+--------------------------------------------------------------------------------
+• Fondo beige/crema, acento naranja, texto gris oscuro, bordes suaves y verde
+  (#7aa35e) para la etiqueta "DE AYER".
+• Calendario tipo tablero: el calendario y el panel de platos sugeridos se
+  muestran en dos columnas; en pantallas pequeñas se apilan y el calendario
+  pasa a scroll horizontal.
+• Tarjetas del calendario con fotografía recortada (object-fit: cover),
+  degradado inferior y título en blanco a dos líneas, siguiendo el diseño de
+  referencia.
+• Tipografía: serif (Georgia) para títulos, sans-serif (Segoe UI/Roboto) para
+  cuerpo.
+• Tarjetas de plato con proporciones consistentes, radios de borde unificados
+  y sombreados sutiles.
+• Diseño responsivo: grid se adapta a pantallas móviles (scroll horizontal en
+  planificador, columnas reducidas en recetario).
+• Sin textos tipo "lorem ipsum"; todo el copy es realista y profesional.
+
+================================================================================
+10. REQUISITOS NO NEGOCIABLES
+--------------------------------------------------------------------------------
+• Web 100% estática: funciona abriendo index.html directamente en el navegador.
+• No se requiere servidor, instalación ni conexión a internet.
+• La sincronización con data/recetas/*.txt usa la File System Access API cuando
+  el navegador la ofrece; si no, se descarga el archivo (nunca bloquea el uso).
+• No hay placeholders de contenido tipo "lorem ipsum".
+• Tres auditorías integradas en una sola página (auditoria.html).
+• Simulación de generación de menú sin IA real (sin conexión a Seedance ni
+  servicios externos).
+• Listado de imágenes verificadas: las 10 recetas originales incluyen su
+  fotografía real, la tortilla de patatas reutiliza una foto disponible y las 9
+  recetas nuevas restantes usan un marcador SVG con inicial y nombre; las
+  recetas del usuario muestran un marcador con icono hasta asignarles imagen.
+
+================================================================================
+FIN DEL INFORME
+================================================================================
