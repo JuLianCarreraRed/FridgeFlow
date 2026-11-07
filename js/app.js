@@ -40,25 +40,33 @@ const PESO_MAX = 5;
 // del formulario de recetas).
 const IMAGENES_RECETAS = [
   'plato-albondigas-tomate.jfif',
-  'plato-arroz-salteado.webp',
-  'plato-crema-calabaza.webp',
-  'plato-curry-garbanzos.jpg',
-  'plato-ensalada-garbanzos-coliflor.jfif',
-  'plato-garbanzos-especiados.webp',
-  'plato-lasana-lentejas.jfif',
-  'plato-pesto-rupula.png',
-  'plato-pollo-pimenton.jfif',
-  'plato-tortitas-calabacin.jfif',
-  'tortilla-de-patatas.jpg',
-  'plato-salteado-tofu.jfif',
-  'plato-heura-ajillo.jpg',
   'plato-alubias-blancas.jpg',
-  'plato-macarrones-tomate.jfif',
-  'plato-ensaladilla-rusa.webp',
+  'plato-arroz-salteado.webp',
+  'plato-berenjena-parmesana.jpg',
+  'plato-burritos-arroz-frijoles.jpg',
+  'plato-crema-calabaza.webp',
   'plato-croquetas-setas.avif',
-  'plato-revuelto-setas.jfif',
+  'plato-curry-garbanzos.jpg',
+  'plato-dal-lentejas-rojas.jpg',
+  'plato-empanadillas-espinacas.jpg',
+  'plato-ensalada-garbanzos-coliflor.jfif',
+  'plato-ensaladilla-rusa.webp',
   'plato-fajitas-falafel.jfif',
-  'plato-empanadillas-espinacas.jpg'
+  'plato-garbanzos-especiados.webp',
+  'plato-heura-ajillo.jpg',
+  'plato-lasana-lentejas.jfif',
+  'plato-macarrones-tomate.jfif',
+  'plato-pad-thai-vegetariano.jpg',
+  'plato-paella-verduras-alcachofas.jpg',
+  'plato-pesto-rupula.png',
+  'plato-pisto-manchego-huevo.jpg',
+  'plato-pizza-verduras-queso-cabra.jpg',
+  'plato-pollo-pimenton.jfif',
+  'plato-revuelto-setas.jfif',
+  'plato-salteado-tofu.jfif',
+  'plato-shakshuka.jpg',
+  'plato-tortitas-calabacin.jfif',
+  'tortilla-de-patatas.jpg'
 ];
 
 // Nombre del archivo .txt de cada receta por defecto (los que ya existen en
@@ -809,7 +817,7 @@ const DEFAULT_RECIPES = [
     imagen: 'plato-pad-thai-vegetariano.jpg',
     ingredientes: [
       { nombre: 'Fideos de arroz', cantidad: 380, unidad: 'g', categoria: 'Despensa', peso: 5 },
-      { nombre: 'Tofu', cantidad: 480, unidad: 'g', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Tofu firme', cantidad: 480, unidad: 'g', categoria: 'Proteínas', peso: 5 },
       { nombre: 'Huevos', cantidad: 6, unidad: 'ud', categoria: 'Proteínas', peso: 4 },
       { nombre: 'Cacahuetes', cantidad: 80, unidad: 'g', categoria: 'Despensa', peso: 3 },
       { nombre: 'Brotes de soja', cantidad: 320, unidad: 'g', categoria: 'Verduras', peso: 3 },
@@ -1056,10 +1064,12 @@ class App {
   init() {
     this.cargarDatos();
     this.bindGlobalEvents();
-    const ruta = window.location.pathname.toLowerCase();
-    if (ruta.includes('recetario')) {
+    // Se compara el nombre del archivo, no una subcadena de la ruta: así una
+    // carpeta llamada "recetario" o "auditoria" no cambia de página.
+    const pagina = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    if (pagina === 'recetario.html') {
       this.renderRecetario();
-    } else if (ruta.includes('auditoria')) {
+    } else if (pagina === 'auditoria.html') {
       this.renderAuditoria();
     } else {
       this.renderIndex();
@@ -1077,38 +1087,55 @@ class App {
     }
   }
 
+  leerVersion() {
+    try {
+      return localStorage.getItem(STORAGE_VERSION);
+    } catch (error) {
+      console.warn('No se pudo leer la versión de los datos.', error);
+      return null;
+    }
+  }
+
+  // La despensa guardada es del usuario: no se reinyectan ingredientes que
+  // haya eliminado. Solo se sanea la estructura.
+  normalizarDespensa(guardados) {
+    if (!guardados || typeof guardados !== 'object' || Array.isArray(guardados)) return null;
+    const limpia = {};
+    Object.entries(guardados).forEach(([categoria, lista]) => {
+      if (!Array.isArray(lista)) return;
+      limpia[categoria] = lista.filter(nombre => typeof nombre === 'string' && nombre);
+    });
+    return Object.keys(limpia).length ? limpia : null;
+  }
+
   cargarDatos() {
     const guardadas = this.leerJSON(STORAGE_RECIPES, []);
-    const ingredientesGuardados = this.leerJSON(STORAGE_INGREDIENTS, null);
-    const version = localStorage.getItem(STORAGE_VERSION);
+    const ingredientesGuardados = this.normalizarDespensa(this.leerJSON(STORAGE_INGREDIENTS, null));
+    const version = this.leerVersion();
     const listaGuardada = Array.isArray(guardadas) ? guardadas : [];
     const esPorDefecto = (id) => DEFAULT_RECIPES.some(r => r.id === id);
     const creadasPorUsuario = listaGuardada.filter(r => r && !esPorDefecto(r.id));
 
     if (version !== DATA_VERSION) {
-      // Migración (2.3 -> 2.4): se recuperan las 10 recetas con sus pesos y el
-      // catálogo de ingredientes. Se conservan las recetas creadas por el
-      // usuario y las recetas por defecto que ya hubiera editado.
+      // Migración: se conservan las recetas editadas y las creadas por el
+      // usuario. La despensa guardada NO se vuelve a fusionar con la inicial:
+      // si el usuario quitó un ingrediente, debe seguir fuera.
       const editadasPorUsuario = listaGuardada.filter(r => r && esPorDefecto(r.id) && r.editada);
       const porDefecto = DEFAULT_RECIPES.filter(def => !editadasPorUsuario.some(r => r.id === def.id));
       this.recetas = [...porDefecto, ...editadasPorUsuario, ...creadasPorUsuario];
-      this.ingredientes = this.fusionarIngredientes(despensaInicial(), ingredientesGuardados);
+      this.ingredientes = ingredientesGuardados || despensaInicial();
     } else {
       const faltan = DEFAULT_RECIPES.filter(def => !listaGuardada.some(r => r.id === def.id));
       this.recetas = [...listaGuardada, ...faltan];
-      this.ingredientes = (ingredientesGuardados && Object.keys(ingredientesGuardados).length)
-        ? ingredientesGuardados
-        : this.fusionarIngredientes(despensaInicial(), null);
+      this.ingredientes = ingredientesGuardados || despensaInicial();
     }
 
     // Normalización: todas las recetas llevan cantidad, unidad, categoría y peso
     this.recetas = this.recetas.map(receta => this.normalizarReceta(receta));
-    if (version !== DATA_VERSION) this.guardarDatos();
-
-    // Preferencias del usuario (menú vegetariano)
     this.cargarPreferencias();
 
-    // Menú semanal: se descartan referencias a recetas que ya no existen
+    // El menú semanal se lee ANTES de guardar nada: si se guardara primero,
+    // guardarDatos() escribiría this.semana = {} y borraría el menú del usuario.
     const semanaGuardada = this.leerJSON(STORAGE_WEEK, {});
     this.semana = {};
     Object.entries(semanaGuardada || {}).forEach(([clave, valor]) => {
@@ -1117,6 +1144,8 @@ class App {
         this.semana[clave] = { recetaId: entrada.recetaId, deAyer: !!entrada.deAyer };
       }
     });
+
+    if (version !== DATA_VERSION) this.guardarDatos();
   }
 
   fusionarIngredientes(base, guardados) {
@@ -1203,10 +1232,18 @@ class App {
   }
 
   guardarDatos() {
-    localStorage.setItem(STORAGE_RECIPES, JSON.stringify(this.recetas));
-    localStorage.setItem(STORAGE_INGREDIENTS, JSON.stringify(this.ingredientes));
-    localStorage.setItem(STORAGE_WEEK, JSON.stringify(this.semana));
-    localStorage.setItem(STORAGE_VERSION, DATA_VERSION);
+    try {
+      localStorage.setItem(STORAGE_RECIPES, JSON.stringify(this.recetas));
+      localStorage.setItem(STORAGE_INGREDIENTS, JSON.stringify(this.ingredientes));
+      localStorage.setItem(STORAGE_WEEK, JSON.stringify(this.semana));
+      localStorage.setItem(STORAGE_VERSION, DATA_VERSION);
+    } catch (error) {
+      console.warn('No se pudieron guardar los datos en el navegador.', error);
+      if (!this.avisoAlmacenMostrado) {
+        this.avisoAlmacenMostrado = true;
+        alert('No se pudieron guardar los datos: el almacenamiento del navegador está lleno o deshabilitado. La app seguirá funcionando, pero los cambios no se conservarán.');
+      }
+    }
   }
 
   // -------------------------------------------------------------- utilidades
@@ -1339,12 +1376,24 @@ class App {
 
   esVegetariana(receta) {
     if (!receta) return true;
+    // Si lleva carne/pescado, no es vegetariana aunque la casilla diga que sí.
+    if (this.ingredientesNoVegetarianos(receta.ingredientes).length) return false;
     if (typeof receta.vegetariano === 'boolean') return receta.vegetariano;
     const datos = datosNutricion();
     const meta = datos && datos.recetas ? datos.recetas[receta.id] : null;
     if (meta && typeof meta.vegetariano === 'boolean') return meta.vegetariano;
-    const noVegetarianos = (datos && datos.noVegetarianos) || ['Albóndigas de ternera', 'Pollo'];
-    return !(receta.ingredientes || []).some(ing => noVegetarianos.includes(ing.nombre));
+    return true;
+  }
+
+  // Devuelve los ingredientes que impiden que una receta sea vegetariana.
+  ingredientesNoVegetarianos(ingredientes) {
+    const datos = datosNutricion() || {};
+    const lista = datos.noVegetarianos || ['Albóndigas de ternera', 'Pollo'];
+    return (ingredientes || []).filter(ing => {
+      if (lista.includes(ing.nombre)) return true;
+      const info = this.nutricionIngrediente(ing.nombre);
+      return info && ['carne', 'pescado', 'marisco'].includes(info.grupo);
+    }).map(ing => ing.nombre);
   }
 
   esVegana(receta) {
@@ -1421,9 +1470,29 @@ class App {
     return new Set(Object.values(this.ingredientes).flat());
   }
 
-  // Catálogo completo (41 ingredientes) + lo que el usuario haya añadido
+  // Catálogo de ingredientes disponibles para las recetas. NO depende de la
+  // despensa: quitar un ingrediente de casa no lo borra del formulario.
+  // Se añaden los ingredientes de recetas y los del formulario abierto.
   catalogoIngredientes() {
-    return this.fusionarIngredientes(CATALOGO_INGREDIENTES, this.ingredientes);
+    const catalogo = {};
+    Object.entries(CATALOGO_INGREDIENTES).forEach(([categoria, lista]) => {
+      catalogo[categoria] = [...lista];
+    });
+    const conocidos = new Set(Object.values(catalogo).flat());
+    const agregar = (nombre, categoria) => {
+      if (!nombre || conocidos.has(nombre)) return;
+      const grupo = categoria || 'Despensa';
+      if (!catalogo[grupo]) catalogo[grupo] = [];
+      catalogo[grupo].push(nombre);
+      conocidos.add(nombre);
+    };
+    (this.recetas || []).forEach(receta => {
+      (receta.ingredientes || []).forEach(ing => agregar(ing.nombre, ing.categoria));
+    });
+    if (this.ingredientesForm) {
+      this.ingredientesForm.forEach(ing => agregar(ing.nombre, ing.categoria));
+    }
+    return catalogo;
   }
 
   imagenHTML(rec, clase, alt) {
@@ -1714,6 +1783,18 @@ class App {
   }
 
   // Evalúa una semana completa contra los objetivos de data/nutricion.js.
+  esElaborado(receta) {
+    if (!receta) return false;
+    if (this.tipoReceta(receta) === 'elaborado') return true;
+    const datos = datosNutricion();
+    const meta = datos && datos.recetas ? datos.recetas[receta.id] : null;
+    return !!meta && ['frito', 'plancha', 'horno'].includes(meta.elaboracion);
+  }
+
+  exigeMenuVegetariano() {
+    return !this.preferencias || this.preferencias.vegetariano !== false;
+  }
+
   analizarSemana(semana) {
     const datos = datosNutricion() || {};
     const objetivos = datos.objetivos || {};
@@ -1742,7 +1823,7 @@ class App {
       const grupos = (c.rec.ingredientes || []).map(i => (this.nutricionIngrediente(i.nombre) || {}).grupo);
       return grupos.includes('proteina') || grupos.includes('legumbre');
     }).length;
-    const elaborados = comidas.filter(c => this.tipoReceta(c.rec) === 'elaborado').length;
+    const elaborados = comidas.filter(c => this.esElaborado(c.rec)).length;
     const huevos = comidas.filter(c => (c.rec.ingredientes || [])
       .some(i => (this.nutricionIngrediente(i.nombre) || {}).grupo === 'huevo')).length;
     const todosVegetarianos = comidas.every(c => this.esVegetariana(c.rec));
@@ -1765,12 +1846,27 @@ class App {
     restar(elaborados - metas.elaborados, 5);
     restar(huevos - metas.huevos, 3);
 
-    const rangoDia = Array.isArray(objetivos.kcalDia) ? objetivos.kcalDia : [1500, 2250];
+    const rangoComida = objetivos.kcalComida || [500, 750];
+    const rangoCena = objetivos.kcalCena || [400, 600];
+    const rangoDia = objetivos.kcalDia || [900, 1350];
+    const desviacion = (valor, rango) => {
+      if (!Array.isArray(rango) || rango.length !== 2) return 0;
+      if (valor < rango[0]) return rango[0] - valor;
+      if (valor > rango[1]) return valor - rango[1];
+      return 0;
+    };
+
+    // Se penaliza que la comida o la cena se alejen de su rango, no solo el
+    // total diario. Antes bastaba con caer dentro de un rango diario muy ancho
+    // para sacar 100 aunque cada comida estuviera muy por debajo del objetivo.
+    if (comidas.length) {
+      puntuacion -= Math.min(35, desviacion(kcalComida, rangoComida) / 4);
+      puntuacion -= Math.min(35, desviacion(kcalCena, rangoCena) / 4);
+    }
     kcalDias.forEach(valor => {
-      if (valor < rangoDia[0]) puntuacion -= Math.min(20, (rangoDia[0] - valor) / 25);
-      if (valor > rangoDia[1]) puntuacion -= Math.min(20, (valor - rangoDia[1]) / 25);
+      puntuacion -= Math.min(15, desviacion(valor, rangoDia) / 20);
     });
-    if (!todosVegetarianos) puntuacion -= 20;
+    if (this.exigeMenuVegetariano() && !todosVegetarianos) puntuacion -= 20;
 
     return {
       puntuacion: Math.max(0, Math.min(100, Math.round(puntuacion))),
@@ -1919,7 +2015,7 @@ class App {
     const ingredientesMenu = new Set();
     enMenu.forEach(rec => rec.ingredientes.forEach(ing => ingredientesMenu.add(ing.nombre)));
 
-    const ranking = this.recetas.map(rec => {
+    const ranking = this.recetasElegibles().map(rec => {
       const nombres = rec.ingredientes.map(ing => ing.nombre);
       return {
         rec,
@@ -1965,7 +2061,7 @@ class App {
     if (!cont) return;
     const buscar = document.getElementById('elegir-buscar');
     const filtro = (buscar ? buscar.value : '').trim().toLowerCase();
-    const recetas = this.recetas.filter(rec => !filtro || rec.nombre.toLowerCase().includes(filtro));
+    const recetas = this.recetasElegibles().filter(rec => !filtro || rec.nombre.toLowerCase().includes(filtro));
 
     if (!recetas.length) {
       cont.innerHTML = '<p class="vacio-texto">No hay recetas que coincidan con la búsqueda.</p>';
@@ -2416,30 +2512,24 @@ class App {
     const nombre = input.value.trim();
     if (!nombre) { input.focus(); return; }
 
-    const todos = Object.values(this.ingredientes).flat();
+    // El catálogo no es la despensa: añadir un ingrediente al formulario no
+    // debe tocar los alimentos que el usuario tiene en casa.
+    const catalogo = this.catalogoIngredientes();
+    const todos = Object.values(catalogo).flat();
     const existente = todos.find(ing => ing.toLowerCase() === nombre.toLowerCase());
     const nombreFinal = existente || nombre;
-    if (!existente) {
-      const categoria = select.value;
-      if (!this.ingredientes[categoria]) this.ingredientes[categoria] = [];
-      this.ingredientes[categoria].push(nombre);
-    }
+    const categoria = existente ? this.categoriaDe(nombreFinal) : select.value;
 
     this.seleccionModal = this.seleccionModal || new Set();
     this.seleccionModal.add(nombreFinal);
     this.ingredientesForm = this.ingredientesForm || new Map();
     if (!this.ingredientesForm.has(nombreFinal)) {
-      const categoria = this.categoriaDe(nombreFinal);
       const base = { nombre: nombreFinal, cantidad: 1, unidad: 'ud', categoria };
       this.ingredientesForm.set(nombreFinal, { ...base, peso: pesoInferido(base) });
     }
-    this.guardarDatos();
     input.value = '';
     this.renderChipsAdd();
     this.actualizarSeleccionAdd();
-    this.renderChipsFiltro();
-    this.renderCategoriasIngredientes();
-    this.actualizarContador();
   }
 
   // Datos del formulario tal y como están ahora mismo (sin guardar).

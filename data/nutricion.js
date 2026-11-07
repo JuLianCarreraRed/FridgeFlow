@@ -37,6 +37,12 @@ window.FRIDGEFLOW_NUTRICION = {
     'Setas': { kcal: 22, proteina: 3.1, hidratos: 3.3, grasa: 0.3, fibra: 1, grupo: 'verdura', gramosPorUnidad: 15 },
     'Tomate': { kcal: 18, proteina: 0.9, hidratos: 3.9, grasa: 0.2, fibra: 1.2, grupo: 'verdura', gramosPorUnidad: 150 },
     'Zanahoria': { kcal: 41, proteina: 0.9, hidratos: 9.6, grasa: 0.2, fibra: 2.8, grupo: 'verdura', gramosPorUnidad: 80 },
+    'Alcachofas': { kcal: 47, proteina: 3.3, hidratos: 10.5, grasa: 0.1, fibra: 5.4, grupo: 'verdura', gramosPorUnidad: 150 },
+    'Brotes de soja': { kcal: 30, proteina: 3, hidratos: 4, grasa: 0.5, fibra: 1.8, grupo: 'verdura' },
+    'Cebolleta': { kcal: 32, proteina: 1.8, hidratos: 7.3, grasa: 0.2, fibra: 2.6, grupo: 'verdura', gramosPorUnidad: 15 },
+    'Jengibre': { kcal: 80, proteina: 1.8, hidratos: 18, grasa: 0.8, fibra: 2, grupo: 'verdura', gramosPorUnidad: 15 },
+    'Judías verdes': { kcal: 31, proteina: 1.8, hidratos: 7, grasa: 0.2, fibra: 3.4, grupo: 'verdura' },
+    'Maíz': { kcal: 86, proteina: 3.2, hidratos: 19, grasa: 1.2, fibra: 2.7, grupo: 'verdura' },
 
     // ------------------------------------------------------------ proteínas
     'Albóndigas de ternera': { kcal: 250, proteina: 17, hidratos: 5, grasa: 18, fibra: 0, grupo: 'carne' },
@@ -48,6 +54,7 @@ window.FRIDGEFLOW_NUTRICION = {
     'Lentejas': { kcal: 116, proteina: 9, hidratos: 20, grasa: 0.4, fibra: 7.9, grupo: 'legumbre' },
     'Pollo': { kcal: 165, proteina: 31, hidratos: 0, grasa: 3.6, fibra: 0, grupo: 'carne' },
     'Tofu firme': { kcal: 144, proteina: 15.8, hidratos: 2.8, grasa: 8.7, fibra: 2.3, grupo: 'proteina' },
+    'Tofu ahumado': { kcal: 150, proteina: 16, hidratos: 2, grasa: 9, fibra: 1, grupo: 'proteina' },
 
     // -------------------------------------------------------------- lácteos
     'Leche': { kcal: 61, proteina: 3.2, hidratos: 4.8, grasa: 3.3, fibra: 0, grupo: 'lacteo' },
@@ -55,6 +62,10 @@ window.FRIDGEFLOW_NUTRICION = {
     'Queso parmesano': { kcal: 431, proteina: 38, hidratos: 4.1, grasa: 29, fibra: 0, grupo: 'lacteo' },
     'Queso rallado': { kcal: 380, proteina: 25, hidratos: 1.5, grasa: 30, fibra: 0, grupo: 'lacteo' },
     'Yogur griego natural': { kcal: 97, proteina: 4, hidratos: 4, grasa: 8, fibra: 0, grupo: 'lacteo' },
+    'Queso feta': { kcal: 264, proteina: 14, hidratos: 4.1, grasa: 21, fibra: 0, grupo: 'lacteo' },
+    'Mozzarella': { kcal: 280, proteina: 18, hidratos: 3.1, grasa: 22, fibra: 0, grupo: 'lacteo' },
+    'Queso de cabra': { kcal: 364, proteina: 21, hidratos: 0.1, grasa: 30, fibra: 0, grupo: 'lacteo' },
+    'Queso manchego': { kcal: 392, proteina: 26, hidratos: 1.5, grasa: 32, fibra: 0, grupo: 'lacteo' },
 
     // ------------------------------------------------------------- despensa
     'Aceite de oliva virgen extra': { kcal: 884, proteina: 0, hidratos: 0, grasa: 100, fibra: 0, grupo: 'grasa' },
@@ -76,6 +87,14 @@ window.FRIDGEFLOW_NUTRICION = {
     'Salsa de soja': { kcal: 53, proteina: 8, hidratos: 4.9, grasa: 0.6, fibra: 0.8, grupo: 'condimento' },
     'Tomate frito': { kcal: 80, proteina: 1.5, hidratos: 12, grasa: 3, fibra: 1.5, grupo: 'verdura' },
     'Tortillas de trigo': { kcal: 300, proteina: 8, hidratos: 50, grasa: 7, fibra: 3, grupo: 'cereal', gramosPorUnidad: 40 },
+    'Fideos de arroz': { kcal: 360, proteina: 6, hidratos: 80, grasa: 0.9, fibra: 1.5, grupo: 'cereal' },
+    'Cacahuetes': { kcal: 567, proteina: 26, hidratos: 16, grasa: 49, fibra: 8.5, grupo: 'frutos' },
+    'Azúcar moreno': { kcal: 380, proteina: 0, hidratos: 98, grasa: 0, fibra: 0, grupo: 'despensa' },
+    'Guindilla en copos': { kcal: 318, proteina: 12, hidratos: 57, grasa: 17, fibra: 27, grupo: 'condimento' },
+    'Azafrán': { kcal: 310, proteina: 11, hidratos: 65, grasa: 6, fibra: 4, grupo: 'condimento' },
+    'Frijoles negros': { kcal: 132, proteina: 8.9, hidratos: 24, grasa: 0.5, fibra: 8.7, grupo: 'legumbre' },
+    'Pimentón ahumado': { kcal: 282, proteina: 14, hidratos: 54, grasa: 13, fibra: 35, grupo: 'condimento' },
+    'Levadura química': { kcal: 97, proteina: 0.1, hidratos: 0, grasa: 0, fibra: 0, grupo: 'despensa' },
 
     // ------------------------------------------------------------- especias
     'Cilantro seco': { kcal: 298, proteina: 12, hidratos: 55, grasa: 4, fibra: 10, grupo: 'condimento' },
@@ -85,7 +104,9 @@ window.FRIDGEFLOW_NUTRICION = {
     'Nuez moscada': { kcal: 525, proteina: 6, hidratos: 49, grasa: 36, fibra: 20, grupo: 'condimento' },
     'Orégano': { kcal: 265, proteina: 9, hidratos: 69, grasa: 4, fibra: 42, grupo: 'condimento' },
     'Perejil': { kcal: 36, proteina: 3, hidratos: 6, grasa: 0.8, fibra: 3.3, grupo: 'condimento' },
-    'Pimentón dulce': { kcal: 282, proteina: 14, hidratos: 54, grasa: 13, fibra: 35, grupo: 'condimento' }
+    'Pimentón dulce': { kcal: 282, proteina: 14, hidratos: 54, grasa: 13, fibra: 35, grupo: 'condimento' },
+    'Cúrcuma': { kcal: 312, proteina: 9.7, hidratos: 67, grasa: 3.3, fibra: 22, grupo: 'condimento' },
+    'Albahaca': { kcal: 23, proteina: 3.2, hidratos: 2.6, grasa: 0.6, fibra: 1.6, grupo: 'condimento' }
   },
 
   // Metadatos que no se deducen de los ingredientes.
@@ -187,9 +208,9 @@ window.FRIDGEFLOW_NUTRICION = {
     elaborados: 3,
     huevos: 5,
     variedad: 10,
-    kcalComida: [750, 850],
-    kcalCena: [650, 750],
-    kcalDia: [650, 1500]
+    kcalComida: [500, 750],
+    kcalCena: [400, 600],
+    kcalDia: [900, 1350]
   },
 
   // Ingredientes que hacen que una receta no sea vegetariana.
@@ -198,9 +219,10 @@ window.FRIDGEFLOW_NUTRICION = {
   // Equivalencias para convertir unidades caseras a gramos.
   unidades: {
     cucharadita: 5,
-    cucharada: 5,
-    cucharadas: 5,
+    cucharada: 15,
+    cucharadas: 15,
     pizca: 0.5,
+    puñado: 10,
     diente: 4,
     dientes: 4,
     rebanada: 30,
