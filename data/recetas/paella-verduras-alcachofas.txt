@@ -4,25 +4,25 @@ RECETA: Paella de verduras con alcachofas
 Imagen: plato-paella-verduras-alcachofas.jpg
 Tiempo de preparación: 50 min
 Porciones base: 4
-Tipo: elaborado
+Tipo: cereal
 Vegetariano: sí
-Calorías: 795 kcal por ración (3180 kcal totales)
-Macros por ración: 35 g de proteína · 108 g de hidratos · 25 g de grasa · 15 g de fibra
+Calorías: 874 kcal por ración (3496 kcal totales)
+Macros por ración: 39.5 g de proteína · 124.7 g de hidratos · 28.2 g de grasa · 23.6 g de fibra
 
 DESCRIPCIÓN:
-Paella de arroz con alcachofas, judías verdes, guisantes y pimiento, reforzada con garbanzos y tofu ahumado para subir la proteína. Comida con carbohidratos complejos de arroz y legumbre. Un clásico español adaptado.
+Paella de arroz con alcachofas, judías verdes, guisantes y pimiento, reforzada con garbanzos y tofu.
 
 INGREDIENTES:
 - Arroz (320 g) — Despensa — peso 5
 - Garbanzos (400 g) — Despensa — peso 4
-- Tofu ahumado (400 g) — Proteínas — peso 5
+- Tofu (400 g) — Proteínas — peso 5
 - Alcachofas (400 g) — Verduras — peso 4
 - Guisantes (240 g) — Verduras — peso 3
 - Judías verdes (150 g) — Verduras — peso 3
 - Pimiento rojo (1 ud) — Verduras — peso 3
 - Tomate (200 g) — Verduras — peso 3
 - Ajo (3 dientes) — Verduras — peso 2
-- Caldo de verduras (1 l) — Despensa — peso 3
+- Caldo de verduras (1000 ml) — Despensa — peso 3
 - Pimentón dulce (1 cucharadita) — Despensa — peso 1
 - Azafrán (pizca) — Despensa — peso 1
 - Aceite de oliva virgen extra (60 ml) — Despensa — peso 2
@@ -33,7 +33,7 @@ EQUIPAMIENTO NECESARIO:
 - Paellera o sartén ancha
 
 PASOS DE ELABORACIÓN:
-1. Calienta el aceite en la paellera y dora el tofu ahumado en dados. Resérvalo.
+1. Calienta el aceite en la paellera y dora el tofu en dados. Resérvalo.
 2. Sofríe el ajo laminado, el pimiento troceado y las judías verdes 5 minutos. Añade las alcachofas y rehoga 3 minutos.
 3. Incorpora el tomate rallado y cocina hasta que se reduzca. Añade el pimentón y remueve rápido.
 4. Agrega el arroz y rehógalo 1 minuto. Vierte el caldo caliente con el azafrán y reparte bien el arroz.

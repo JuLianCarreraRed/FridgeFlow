@@ -8,7 +8,7 @@
 
 - Cocina casera, papel y nevera. Cálido, no corporativo.
 - Densidad media: una semana entera visible sin scroll horizontal.
-- Un solo acento naranja. El verde significa únicamente "sobras de ayer".
+- Un solo acento naranja. El verde saturado se reserva para "sobras de ayer"; el verde suave de los chips de coincidencia es la única excepción.
 - Nada de gradientes, glassmorphism ni bordes de neón.
 
 ## Tokens (`css/style.css` → `:root`)
@@ -23,7 +23,16 @@
 | `--acento-oscuro` | `#c96a2e` | Enlaces y botones con texto |
 | `--borde` | `#d8d0c1` | Bordes suaves |
 | `--borde-oscuro` | `#bfb4a4` | Bordes en hover |
-| `--verde-ayer` | `#7aa35e` | Solo "sobras de ayer" |
+| `--verde-ayer` | `#7aa35e` | Barra de coincidencia alta (>70 %) y sobras de ayer |
+| `--acento-texto` | `#a8541f` | Texto pequeño sobre fondos claros (≥4.5:1) |
+| `--amarillo` | `#d4a017` | Barra de coincidencia media (45–70 %) |
+| `--amarillo-fondo` | `#fdf6e3` | Fondo del bloque de coincidencia media |
+| `--verde-coincidencia-fondo` | `#eaf2e3` | Fondo del bloque de coincidencia alta (>70 %) |
+| `--coincidencia-fondo` | `#fdf3e7` | Fondo del bloque de coincidencia |
+| `--coincidencia-pista` | `#e6ddcd` | Pista de la barra de coincidencia |
+| `--coincide-fondo` | `#e4efd9` | Chip de ingrediente que coincide (verde suave) |
+| `--coincide-borde` | `#b9d3a2` | Borde del chip que coincide |
+| `--coincide-texto` | `#3f5f2c` | Texto del chip que coincide |
 | `--radius` | `12px` | Radio base (16 px en modales) |
 
 ### Contraste medido
@@ -35,6 +44,8 @@
 | `#e8833a` sobre `#f7f3ec` | 2.45:1 | ✗ solo decorativo |
 | `#ffffff` sobre `#e8833a` | 2.71:1 | ✗ no usar |
 | `#ffffff` sobre `#c96a2e` | 3.76:1 | ✗ en texto normal; válido en texto grande (≥24 px o ≥18.66 px bold) |
+| `#a8541f` sobre `#fdf3e7` | 4.84:1 | ✓ AA |
+| `#3f5f2c` sobre `#e4efd9` | 6.12:1 | ✓ AA |
 
 Para un botón primario con texto blanco hace falta un naranja más oscuro
 (por ejemplo `#a8541f`, ≈5.1:1). Si se cambia el token, volver a medir.

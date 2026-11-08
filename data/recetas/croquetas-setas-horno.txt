@@ -6,23 +6,23 @@ Tiempo de preparación: 55 min
 Porciones base: 4
 Tipo: elaborado
 Vegetariano: sí
-Calorías: 352 kcal por ración (1406 kcal totales)
-Macros por ración: 12.4 g de proteína · 38.2 g de hidratos · 17.3 g de grasa · 3.2 g de fibra
+Calorías: 700 kcal por ración (2798 kcal totales)
+Macros por ración: 25.6 g de proteína · 72.2 g de hidratos · 35.5 g de grasa · 6 g de fibra
 
 DESCRIPCIÓN:
 Croquetas caseras de setas y bechamel, horneadas en lugar de fritas, con una ensalada fresca de lechuga y tomate.
 
 INGREDIENTES:
-- Setas (300 g) — Verduras — peso 5
-- Cebolla (1 ud) — Verduras — peso 3
-- Harina de trigo (60 g) — Despensa — peso 3
-- Leche (400 ml) — Lácteos — peso 3
-- Mantequilla (30 g) — Lácteos — peso 2
-- Pan rallado (80 g) — Despensa — peso 3
-- Huevos (1 ud) — Proteínas — peso 2
-- Lechuga (80 g) — Verduras — peso 2
-- Tomate (1 ud) — Verduras — peso 2
-- Aceite de oliva virgen extra (20 ml) — Despensa — peso 1
+- Setas (600 g) — Verduras — peso 5
+- Cebolla (2 ud) — Verduras — peso 3
+- Harina de trigo (120 g) — Despensa — peso 3
+- Leche (800 ml) — Lácteos — peso 3
+- Mantequilla (60 g) — Lácteos — peso 2
+- Pan rallado (140 g) — Despensa — peso 3
+- Huevos (3 ud) — Proteínas — peso 2
+- Lechuga (100 g) — Verduras — peso 2
+- Tomate (2 ud) — Verduras — peso 2
+- Aceite de oliva virgen extra (40 ml) — Despensa — peso 1
 - Nuez moscada (pizca) — Especias — peso 1
 - Sal (pizca) — Despensa — peso 1
 - Pimienta negra (pizca) — Despensa — peso 1
@@ -30,6 +30,7 @@ INGREDIENTES:
 EQUIPAMIENTO NECESARIO:
 - Sartén
 - Horno
+- Bol
 
 PASOS DE ELABORACIÓN:
 1. Pica la cebolla y las setas y sofríelas en una sartén con la mantequilla durante 8 minutos.

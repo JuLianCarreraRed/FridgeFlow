@@ -15,7 +15,7 @@ Herramienta web estática para crear recetas y menús semanales con los alimento
 | `js/app.js` | Lógica completa: datos por defecto, localStorage, calendario, filtros, nutrición y modales |
 | `data/nutricion.js` | **Datos nutricionales y combinaciones saludables** (kcal/macros por ingrediente, tipos de plato, objetivos semanales) |
 | `assets/images/recetas/` | 11 fotografías reales + 9 marcadores SVG para las recetas nuevas (`plato-*.jfif`, `.webp`, `.jpg`, `.png`, `.svg`) |
-| `data/recetas/*.txt` | Contenido editorial de las 20 recetas, con peso, kcal, tipo de plato y macros |
+| `data/recetas/*.txt` | Contenido editorial de las 28 recetas, con peso, kcal, tipo de plato y macros |
 | `INFORME_FUNCIONALIDAD.txt` | Informe de objetivos y funcionalidad del proyecto |
 
 ## Cómo usar
@@ -39,18 +39,18 @@ No requiere servidor, instalación ni conexión a internet.
 - **Estadísticas**: platos colocados, ingredientes distintos, solapamiento con la despensa, coste estimado (1,80 € por ingrediente que falta), tiempo total en cocina, alimentos rescatados, **kcal media por comida** y **recetas distintas**.
 - **Platos sugeridos**: miniatura + `TIEMPO · KCAL · FALTA n · REUTILIZA n`.
 - **Lista de la compra**: ingredientes del menú que no están en tu despensa.
-- **Recetario**: filtro ponderado por ingredientes, **kcal por ración** en cada tarjeta (semáforo ligera/equilibrada/contundente), etiquetas vegetariana/vegana/tipo de plato, orden por kcal y filtros por rango de calorías y solo vegetarianas.
+- **Recetario**: filtro por coincidencia con tus ingredientes, **kcal por ración** en cada tarjeta (semáforo ligera/equilibrada/contundente), etiquetas vegetariana/vegana/tipo de plato, orden por kcal y filtros por rango de calorías y solo vegetarianas.
 - **Detalle de receta**: foto grande, kcal por ración y total, macros (proteína, hidratos, grasa y fibra), selector de comensales con −/+, ingredientes con “falta”, equipamiento y “Añadir a mi semana”.
 - **Editar receta**: botón ✏️ en cada tarjeta y “Editar receta” en el detalle. Se pueden cambiar todos los campos, incluido kcal, tipo y vegetarianismo.
 - **Sincronización con `.txt`**: al guardar una receta se regenera su archivo con el formato de `data/recetas/` (incluye tipo, vegetariano, kcal y macros). En Chrome/Edge se puede sobrescribir el archivo real; si no, se descarga. También hay un botón explícito “Descargar .txt”.
 
 ## Catálogo y despensa
 
-- **Catálogo**: 59 ingredientes utilizables en recetas (incluye tofu, Heura, falafel, alubias blancas, setas, masa de empanadilla…).
-- **Despensa inicial**: 37 ingredientes, un subconjunto realista para que la lista de la compra y los avisos de "falta" tengan sentido desde el primer uso.
+- **Catálogo**: 79 ingredientes utilizables en recetas (incluye tofu, Heura, falafel, alubias blancas, setas, masa de empanadilla…).
+- **Despensa inicial**: 57 ingredientes, un subconjunto realista para que la lista de la compra y los avisos de "falta" tengan sentido desde el primer uso.
 - Puedes añadir o quitar ingredientes de tu despensa desde el botón flotante **🥕** del recetario (abajo a la derecha), que muestra el total y abre la ventana “Mis ingredientes”.
 
-## Peso de los ingredientes y filtro ponderado
+## Peso de los ingredientes y cálculo de coincidencia
 
 Cada ingrediente de cada receta lleva un **peso de 1 a 5** que indica su importancia en el plato:
 
@@ -62,7 +62,14 @@ Cada ingrediente de cada receta lleva un **peso de 1 a 5** que indica su importa
 | 2 | Condimento con presencia | Aceite, ajo, limón, yogur, caldo |
 | 1 | Condimento mínimo | Sal, pimienta |
 
-El filtro del recetario calcula una **cobertura ponderada**: `Σ pesos de los ingredientes que tienes ÷ Σ pesos de todos los ingredientes de la receta`. Las recetas se ordenan por esa puntuación (y, a igualdad, por número de coincidencias). Así, en una ensalada de garbanzos, seleccionar “Garbanzos” y “Sal” da `(5+1)/22 = 27 %`, mientras que la sal sola apenas puntúa un 5 %.
+El filtro del recetario calcula una **coincidencia** en dos pasos:
+
+1. **Cobertura estirada**: `(Σ pesos que coinciden ÷ Σ pesos de la receta) × 2`, limitada al 100 %. Así un ingrediente protagonista no se queda en un 12 % que parece irrelevante.
+2. **Plus por protagonistas**: cada ingrediente seleccionado con peso ≥ 4 en esa receta suma un 8 % extra. La tarjeta indica cuántos protagonistas coinciden.
+
+Con ingredientes seleccionados, el recetario muestra solo las **8 recetas con más coincidencias** (el contador indica cuántas quedan fuera) y después aplica el orden elegido (kcal, nombre…).
+
+Por ejemplo, “Arroz” en el arroz salteado da `((5/22) × 2 + 0,08) × 100 ≈ 53 %`, y “Arroz” + “Huevos” en esa misma receta llega al 98 %.
 
 Los pesos se pueden ajustar receta a receta desde el formulario de edición (columna **Peso**).
 

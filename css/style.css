@@ -25,6 +25,15 @@
   --sombra-hover: 0 8px 20px rgba(0, 0, 0, 0.14);
   --radius: 12px;
   --max-width: 1200px;
+  --acento-texto: #a8541f;
+  --amarillo: #d4a017;
+  --amarillo-fondo: #fdf6e3;
+  --verde-coincidencia-fondo: #eaf2e3;
+  --coincidencia-fondo: #fdf3e7;
+  --coincidencia-pista: #e6ddcd;
+  --coincide-fondo: #e4efd9;
+  --coincide-borde: #b9d3a2;
+  --coincide-texto: #3f5f2c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -330,6 +339,35 @@ header {
   gap: 1rem;
   flex-wrap: wrap;
 }
+.buscador-alimentos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  padding: 0.35rem 0.8rem;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  min-width: 210px;
+}
+.buscador-alimentos:focus-within {
+  border-color: var(--acento-texto);
+  outline: 2px solid var(--acento-texto);
+  outline-offset: 2px;
+}
+.buscador-icono { font-size: 0.85rem; line-height: 1; }
+.buscador-alimentos input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.1rem 0;
+  border: none;
+  background: transparent;
+  color: var(--texto);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+.buscador-alimentos input::placeholder { color: var(--texto-suave); }
+.buscador-alimentos input:focus { outline: none; }
 .chips-ingredientes {
   display: flex;
   flex-wrap: wrap;
@@ -354,6 +392,14 @@ header {
   font-size: 0.85rem;
 }
 .btn-mas-ingredientes:hover { border-color: var(--acento); background: var(--acento); color: var(--blanco); }
+.btn-añadir-rapido {
+  background: var(--blanco);
+  border: 1px dashed var(--acento-texto);
+  color: var(--acento-texto);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.btn-añadir-rapido:hover { background: var(--coincidencia-fondo); border-style: solid; }
 .secundarios-desplegable {
   display: flex;
   flex-wrap: wrap;
@@ -1510,11 +1556,11 @@ header {
 }
 .tarjeta-editar:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 
-/* --- Puntuación ponderada en las tarjetas --- */
+/* --- Coincidencia del filtro en las tarjetas --- */
 .tarjeta-puntuacion {
   margin: 0.5rem 0 0.35rem;
   padding: 0.5rem 0.6rem;
-  background: #f7f2e9;
+  background: var(--coincidencia-fondo);
   border: 1px solid var(--borde);
   border-radius: 8px;
 }
@@ -1531,12 +1577,12 @@ header {
 .tarjeta-puntuacion-cabecera strong {
   font-size: 0.85rem;
   letter-spacing: 0;
-  color: var(--acento-oscuro);
+  color: var(--acento-texto);
 }
 .tarjeta-barra {
   height: 6px;
-  margin: 0.3rem 0 0.25rem;
-  background: #e6ddcd;
+  margin: 0.3rem 0;
+  background: var(--coincidencia-pista);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -1544,14 +1590,20 @@ header {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--verde-ayer), var(--acento));
+  background: var(--acento);
 }
+.tarjeta-puntuacion--alta { background: var(--verde-coincidencia-fondo); }
+.tarjeta-puntuacion--alta .tarjeta-barra span { background: var(--verde-ayer); }
+.tarjeta-puntuacion--media { background: var(--amarillo-fondo); }
+.tarjeta-puntuacion--media .tarjeta-barra span { background: var(--amarillo); }
+.tarjeta-puntuacion--baja { background: var(--coincidencia-fondo); }
+.tarjeta-puntuacion--baja .tarjeta-barra span { background: var(--acento); }
 .tarjeta-puntuacion-detalle { font-size: 0.68rem; color: var(--texto-suave); }
 .tarjeta-chip { border: 1px solid transparent; }
 .tarjeta-chip.coincide {
-  background: #e4efd9;
-  border: 1px solid #b9d3a2;
-  color: #3f5f2c;
+  background: var(--coincide-fondo);
+  border: 1px solid var(--coincide-borde);
+  color: var(--coincide-texto);
 }
 .tarjeta-chip.principal { font-weight: 700; }
 

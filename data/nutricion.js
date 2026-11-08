@@ -53,8 +53,7 @@ window.FRIDGEFLOW_NUTRICION = {
     'Huevos': { kcal: 143, proteina: 12.6, hidratos: 0.7, grasa: 9.5, fibra: 0, grupo: 'huevo', gramosPorUnidad: 55 },
     'Lentejas': { kcal: 116, proteina: 9, hidratos: 20, grasa: 0.4, fibra: 7.9, grupo: 'legumbre' },
     'Pollo': { kcal: 165, proteina: 31, hidratos: 0, grasa: 3.6, fibra: 0, grupo: 'carne' },
-    'Tofu firme': { kcal: 144, proteina: 15.8, hidratos: 2.8, grasa: 8.7, fibra: 2.3, grupo: 'proteina' },
-    'Tofu ahumado': { kcal: 150, proteina: 16, hidratos: 2, grasa: 9, fibra: 1, grupo: 'proteina' },
+    'Tofu': { kcal: 144, proteina: 15.8, hidratos: 2.8, grasa: 8.7, fibra: 2.3, grupo: 'proteina' },
 
     // -------------------------------------------------------------- lácteos
     'Leche': { kcal: 61, proteina: 3.2, hidratos: 4.8, grasa: 3.3, fibra: 0, grupo: 'lacteo' },
@@ -208,8 +207,10 @@ window.FRIDGEFLOW_NUTRICION = {
     elaborados: 3,
     huevos: 5,
     variedad: 10,
-    kcalComida: [500, 750],
-    kcalCena: [400, 600],
+    kcalComida: [750, 850],
+    kcalCena: [650, 750],
+    proteinaComida: [35, 45],
+    proteinaCena: [35, 45],
     kcalDia: [900, 1350]
   },
 

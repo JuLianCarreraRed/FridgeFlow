@@ -27,7 +27,7 @@ const RUTA_IMAGENES = 'assets/images/recetas/';
 const COSTE_POR_INGREDIENTE = 1.8;
 
 // ---------------------------------------------------------------------------
-// PESO DE LOS INGREDIENTES (filtro ponderado)
+// PESO DE LOS INGREDIENTES (coincidencia del recetario)
 // Escala 1-5: 1 = condimento (sal, pimienta), 2 = condimento con presencia
 // (aceite, aliños), 3 = verdura de sofrito o especia clave, 4 = base o
 // acompañamiento principal y 5 = ingrediente protagonista del plato.
@@ -35,6 +35,19 @@ const COSTE_POR_INGREDIENTE = 1.8;
 // ---------------------------------------------------------------------------
 const PESO_MIN = 1;
 const PESO_MAX = 5;
+const PESO_PROTAGONISTA = 4;
+
+// Migración de nombres de ingrediente: variantes que ahora se unifican.
+const RENOMBRAR_INGREDIENTES = {
+  'Tofu firme': 'Tofu',
+  'Tofu ahumado': 'Tofu'
+};
+
+// Filtro del recetario: la coincidencia se estira para que un ingrediente
+// protagonista no parezca poco relevante (un 12 % analítico se lee mal).
+const FACTOR_COINCIDENCIA = 2;
+const BONUS_PROTAGONISTA = 0.08;
+const RECETAS_TOP_FILTRO = 8;
 
 // Archivos de imagen disponibles en assets/images/recetas/ (para el selector
 // del formulario de recetas).
@@ -186,11 +199,11 @@ function pesoPorDefecto(recetaId, ingrediente) {
 
 // CATÁLOGO: todos los ingredientes que pueden usarse en una receta
 const CATALOGO_INGREDIENTES = {
-  Verduras: ['Ajetes', 'Ajo', 'Berenjena', 'Calabacín', 'Calabaza', 'Cebolla', 'Coliflor', 'Espinacas', 'Guisantes', 'Lechuga', 'Limón', 'Patatas', 'Pimiento rojo', 'Pimiento verde', 'Rúcula', 'Setas', 'Tomate', 'Zanahoria'],
-  Proteínas: ['Albóndigas de ternera', 'Alubias blancas', 'Falafel', 'Garbanzos', 'Heura', 'Huevos', 'Lentejas', 'Pollo', 'Tofu firme'],
-  Lácteos: ['Leche', 'Mantequilla', 'Queso parmesano', 'Queso rallado', 'Yogur griego natural'],
-  Despensa: ['Aceite de oliva virgen extra', 'Aceitunas', 'Arroz', 'Caldo de verduras', 'Harina de trigo', 'Láminas de lasaña', 'Leche de coco', 'Macarrones', 'Masa de empanadilla', 'Mayonesa', 'Nueces', 'Pan integral', 'Pan rallado', 'Pasta integral', 'Pimienta negra', 'Sal', 'Salsa de soja', 'Tomate frito', 'Tortillas de trigo'],
-  Especias: ['Cilantro seco', 'Comino molido', 'Curry en polvo', 'Laurel', 'Nuez moscada', 'Orégano', 'Perejil', 'Pimentón dulce']
+  Verduras: ['Ajetes', 'Ajo', 'Berenjena', 'Calabacín', 'Calabaza', 'Cebolla', 'Coliflor', 'Espinacas', 'Guisantes', 'Lechuga', 'Limón', 'Patatas', 'Pimiento rojo', 'Pimiento verde', 'Rúcula', 'Setas', 'Tomate', 'Zanahoria', 'Alcachofas', 'Cebolleta', 'Jengibre', 'Judías verdes', 'Maíz', 'Brotes de soja'],
+  Proteínas: ['Albóndigas de ternera', 'Alubias blancas', 'Falafel', 'Garbanzos', 'Heura', 'Huevos', 'Lentejas', 'Pollo', 'Tofu', 'Frijoles negros'],
+  Lácteos: ['Leche', 'Mantequilla', 'Queso parmesano', 'Queso rallado', 'Yogur griego natural', 'Queso feta', 'Queso de cabra', 'Queso manchego', 'Mozzarella'],
+  Despensa: ['Aceite de oliva virgen extra', 'Aceitunas', 'Arroz', 'Caldo de verduras', 'Fideos de arroz', 'Harina de trigo', 'Láminas de lasaña', 'Leche de coco', 'Macarrones', 'Masa de empanadilla', 'Mayonesa', 'Nueces', 'Pan integral', 'Pan rallado', 'Pasta integral', 'Pimienta negra', 'Sal', 'Salsa de soja', 'Tomate frito', 'Tortillas de trigo', 'Azúcar moreno', 'Cacahuetes', 'Levadura química'],
+  Especias: ['Cilantro seco', 'Comino molido', 'Curry en polvo', 'Laurel', 'Nuez moscada', 'Orégano', 'Perejil', 'Pimentón dulce', 'Cúrcuma', 'Guindilla en copos', 'Albahaca', 'Azafrán', 'Pimentón ahumado']
 };
 
 // La despensa de ejemplo NO tiene todo el catálogo: así la lista de la compra,
@@ -198,7 +211,7 @@ const CATALOGO_INGREDIENTES = {
 const NO_EN_DESPENSA = ['Albóndigas de ternera', 'Pollo', 'Lentejas', 'Queso parmesano',
   'Leche de coco', 'Láminas de lasaña', 'Nueces', 'Pan integral',
   'Calabaza', 'Berenjena', 'Coliflor', 'Rúcula', 'Guisantes',
-  'Heura', 'Tofu firme', 'Falafel', 'Alubias blancas', 'Setas',
+  'Heura', 'Tofu', 'Falafel', 'Alubias blancas', 'Setas',
   'Masa de empanadilla', 'Tortillas de trigo', 'Queso rallado', 'Ajetes'];
 
 function despensaInicial() {
@@ -218,14 +231,14 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-albondigas-tomate.jfif',
     ingredientes: [
-      { nombre: 'Albóndigas de ternera', cantidad: 400, unidad: 'g', categoria: 'Proteínas' },
+      { nombre: 'Albóndigas de ternera', cantidad: 450, unidad: 'g', categoria: 'Proteínas' },
       { nombre: 'Tomate frito', cantidad: 300, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
       { nombre: 'Ajo', cantidad: 2, unidad: 'dientes', categoria: 'Verduras' },
-      { nombre: 'Patatas', cantidad: 600, unidad: 'g', categoria: 'Verduras' },
+      { nombre: 'Patatas', cantidad: 800, unidad: 'g', categoria: 'Verduras' },
       { nombre: 'Leche', cantidad: 100, unidad: 'ml', categoria: 'Lácteos' },
       { nombre: 'Mantequilla', cantidad: 20, unidad: 'g', categoria: 'Lácteos' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 40, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' }
     ],
@@ -246,18 +259,18 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-arroz-salteado.webp',
     ingredientes: [
-      { nombre: 'Arroz', cantidad: 150, unidad: 'g (crudo)', categoria: 'Despensa' },
-      { nombre: 'Huevos', cantidad: 3, unidad: 'ud', categoria: 'Proteínas' },
-      { nombre: 'Zanahoria', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Guisantes', cantidad: 100, unidad: 'g', categoria: 'Verduras' },
-      { nombre: 'Cebolla', cantidad: 0.5, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 20, unidad: 'ml', categoria: 'Despensa' },
-      { nombre: 'Salsa de soja', cantidad: 15, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Arroz', cantidad: 400, unidad: 'g (crudo)', categoria: 'Despensa' },
+      { nombre: 'Huevos', cantidad: 8, unidad: 'ud', categoria: 'Proteínas' },
+      { nombre: 'Zanahoria', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Guisantes', cantidad: 200, unidad: 'g', categoria: 'Verduras' },
+      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 40, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Salsa de soja', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' }
     ],
     equipamiento: ['Sartén', 'Cuchara de madera'],
     pasos: [
-      'Cuece el arroz el día anterior (400 g ya cocido) para que no se apelmace al saltear.',
+      'Cuece el arroz el día anterior (unos 1 kg ya cocido) para que no se apelmace al saltear.',
       'Pica la cebolla y la zanahoria en daditos pequeños.',
       'Calienta aceite en una sartén grande y saltea la cebolla y la zanahoria durante 5 minutos.',
       'Añade los guisantes y el arroz cocido, rompiendo los grumos con la cuchara.',
@@ -273,15 +286,16 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-crema-calabaza.webp',
     ingredientes: [
-      { nombre: 'Calabaza', cantidad: 800, unidad: 'g', categoria: 'Verduras' },
-      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Ajo', cantidad: 2, unidad: 'dientes', categoria: 'Verduras' },
-      { nombre: 'Caldo de verduras', cantidad: 700, unidad: 'ml', categoria: 'Despensa' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Calabaza', cantidad: 2000, unidad: 'g', categoria: 'Verduras' },
+      { nombre: 'Cebolla', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Ajo', cantidad: 4, unidad: 'dientes', categoria: 'Verduras' },
+      { nombre: 'Caldo de verduras', cantidad: 1200, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 100, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Cilantro seco', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' },
-      { nombre: 'Pan integral', cantidad: 4, unidad: 'rebanadas', categoria: 'Despensa' }
+      { nombre: 'Pan integral', cantidad: 10, unidad: 'rebanadas', categoria: 'Despensa' },
+      { nombre: 'Nueces', cantidad: 40, unidad: 'g', categoria: 'Despensa' }
     ],
     equipamiento: ['Horno', 'Cacerola', 'Licuadora'],
     pasos: [
@@ -289,7 +303,7 @@ const DEFAULT_RECIPES = [
       'Pica la cebolla y el ajo y pochéalos en una cacerola con un poco de aceite.',
       'Añade la calabaza asada, el caldo de verduras y el cilantro seco. Cocina 15 minutos.',
       'Tritura todo con la licuadora hasta obtener una crema fina y sedosa.',
-      'Tuesta las rebanadas de pan integral y sirve la crema caliente con las tostadas a un lado.'
+      'Tuesta las rebanadas de pan integral y las nueces, y sirve la crema caliente con ambas cosas a un lado.'
     ]
   },
   {
@@ -330,13 +344,15 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-ensalada-garbanzos-coliflor.jfif',
     ingredientes: [
-      { nombre: 'Coliflor', cantidad: 1, unidad: 'ud mediana', categoria: 'Verduras' },
-      { nombre: 'Garbanzos', cantidad: 200, unidad: 'g cocidos', categoria: 'Proteínas' },
-      { nombre: 'Rúcula', cantidad: 50, unidad: 'g', categoria: 'Verduras' },
-      { nombre: 'Yogur griego natural', cantidad: 150, unidad: 'g', categoria: 'Lácteos' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Coliflor', cantidad: 2, unidad: 'ud mediana', categoria: 'Verduras' },
+      { nombre: 'Garbanzos', cantidad: 600, unidad: 'g cocidos', categoria: 'Proteínas' },
+      { nombre: 'Huevos', cantidad: 4, unidad: 'ud', categoria: 'Proteínas' },
+      { nombre: 'Rúcula', cantidad: 100, unidad: 'g', categoria: 'Verduras' },
+      { nombre: 'Yogur griego natural', cantidad: 300, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Queso feta', cantidad: 80, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 60, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Pimentón dulce', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias' },
-      { nombre: 'Limón', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Limón', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' }
     ],
@@ -344,9 +360,9 @@ const DEFAULT_RECIPES = [
     pasos: [
       'Precalienta el horno a 200 °C. Corta la coliflor en floretes.',
       'Mezcla los floretes con aceite, pimentón, sal y pimienta. Asa durante 25 minutos.',
-      'Mientras tanto, prepara el aliño mezclando yogur, jugo de limón, un poco de aceite, sal y pimienta.',
-      'En un bol grande, combina la coliflor asada caliente, los garbanzos y la rúcula.',
-      'Vierte el aliño por encima, mezcla suavemente y sirve templada.'
+      'Mientras tanto, cuece los huevos 10 minutos, enfría y pélalos. Prepara el aliño mezclando yogur, jugo de limón, un poco de aceite, sal y pimienta.',
+      'En un bol grande, combina la coliflor asada caliente, los garbanzos, la rúcula y los huevos cortados en cuartos.',
+      'Vierte el aliño por encima, desmenuza el queso feta, mezcla suavemente y sirve templada.'
     ]
   },
   {
@@ -357,14 +373,15 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-garbanzos-especiados.webp',
     ingredientes: [
-      { nombre: 'Garbanzos', cantidad: 400, unidad: 'g cocidos', categoria: 'Proteínas' },
-      { nombre: 'Espinacas', cantidad: 200, unidad: 'g', categoria: 'Verduras' },
-      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Ajo', cantidad: 3, unidad: 'dientes', categoria: 'Verduras' },
-      { nombre: 'Tomate frito', cantidad: 200, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Garbanzos', cantidad: 800, unidad: 'g cocidos', categoria: 'Proteínas' },
+      { nombre: 'Espinacas', cantidad: 300, unidad: 'g', categoria: 'Verduras' },
+      { nombre: 'Cebolla', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Ajo', cantidad: 4, unidad: 'dientes', categoria: 'Verduras' },
+      { nombre: 'Tomate frito', cantidad: 400, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Pimentón dulce', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
-      { nombre: 'Caldo de verduras', cantidad: 100, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 60, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Caldo de verduras', cantidad: 200, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Pan integral', cantidad: 4, unidad: 'rebanadas', categoria: 'Despensa' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' }
     ],
     equipamiento: ['Cacerola', 'Cuchara de madera'],
@@ -374,7 +391,7 @@ const DEFAULT_RECIPES = [
       'Añade el ajo y el pimentón dulce, removiendo rápidamente para no quemar el pimentón.',
       'Incorpora los garbanzos, el tomate frito y el caldo de verduras.',
       'Cocina a fuego medio durante 15 minutos.',
-      'Añade las espinacas y deja que se reduzcan. Salpimenta y sirve caliente.'
+      'Añade las espinacas y deja que se reduzcan. Salpimenta y sirve caliente con el pan integral tostado.'
     ]
   },
   {
@@ -385,17 +402,18 @@ const DEFAULT_RECIPES = [
     porciones_base: 6,
     imagen: 'plato-lasana-lentejas.jfif',
     ingredientes: [
-      { nombre: 'Lentejas', cantidad: 300, unidad: 'g cocidas', categoria: 'Proteínas' },
-      { nombre: 'Berenjena', cantidad: 1, unidad: 'ud grande', categoria: 'Verduras' },
-      { nombre: 'Láminas de lasaña', cantidad: 6, unidad: 'ud', categoria: 'Despensa' },
-      { nombre: 'Queso parmesano', cantidad: 80, unidad: 'g', categoria: 'Lácteos' },
-      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Zanahoria', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Tomate frito', cantidad: 400, unidad: 'ml', categoria: 'Despensa' },
-      { nombre: 'Leche', cantidad: 400, unidad: 'ml', categoria: 'Lácteos' },
-      { nombre: 'Harina de trigo', cantidad: 30, unidad: 'g', categoria: 'Despensa' },
-      { nombre: 'Mantequilla', cantidad: 30, unidad: 'g', categoria: 'Lácteos' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Lentejas', cantidad: 400, unidad: 'g cocidas', categoria: 'Proteínas' },
+      { nombre: 'Berenjena', cantidad: 2, unidad: 'ud grande', categoria: 'Verduras' },
+      { nombre: 'Láminas de lasaña', cantidad: 12, unidad: 'ud', categoria: 'Despensa' },
+      { nombre: 'Queso parmesano', cantidad: 120, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Mozzarella', cantidad: 150, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Cebolla', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Zanahoria', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Tomate frito', cantidad: 800, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Leche', cantidad: 800, unidad: 'ml', categoria: 'Lácteos' },
+      { nombre: 'Harina de trigo', cantidad: 60, unidad: 'g', categoria: 'Despensa' },
+      { nombre: 'Mantequilla', cantidad: 60, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 60, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Orégano', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' }
@@ -406,8 +424,8 @@ const DEFAULT_RECIPES = [
       'Pica la cebolla y la zanahoria y pochéalas en una cacerola con aceite.',
       'Añade las lentejas, el tomate frito y el orégano. Cocina 10 minutos.',
       'Prepara la bechamel: derrite la mantequilla, añade la harina, cocina 1 minuto y vierte la leche caliente poco a poco hasta espesar.',
-      'En una fuente para horno, alterna capas de láminas de lasaña, ragú de lentejas, berenjena y bechamel.',
-      'Termina con una capa de bechamel y espolvorea queso parmesano.',
+      'En una fuente para horno, alterna capas de láminas de lasaña, ragú de lentejas, berenjena, mozzarella y bechamel.',
+      'Termina con una capa de bechamel y espolvorea el queso parmesano.',
       'Hornea durante 25 minutos hasta que esté dorada y burbujeante.'
     ]
   },
@@ -419,10 +437,10 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-pesto-rupula.png',
     ingredientes: [
-      { nombre: 'Pasta integral', cantidad: 320, unidad: 'g', categoria: 'Despensa' },
+      { nombre: 'Pasta integral', cantidad: 380, unidad: 'g', categoria: 'Despensa' },
       { nombre: 'Rúcula', cantidad: 60, unidad: 'g', categoria: 'Verduras' },
-      { nombre: 'Nueces', cantidad: 50, unidad: 'g', categoria: 'Despensa' },
-      { nombre: 'Queso parmesano', cantidad: 50, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Nueces', cantidad: 70, unidad: 'g', categoria: 'Despensa' },
+      { nombre: 'Queso parmesano', cantidad: 60, unidad: 'g', categoria: 'Lácteos' },
       { nombre: 'Ajo', cantidad: 1, unidad: 'diente', categoria: 'Verduras' },
       { nombre: 'Aceite de oliva virgen extra', cantidad: 60, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Limón', cantidad: 0.5, unidad: 'ud', categoria: 'Verduras' },
@@ -447,9 +465,9 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-pollo-pimenton.jfif',
     ingredientes: [
-      { nombre: 'Pollo', cantidad: 600, unidad: 'g troceado', categoria: 'Proteínas' },
-      { nombre: 'Patatas', cantidad: 4, unidad: 'ud medianas', categoria: 'Verduras' },
-      { nombre: 'Huevos', cantidad: 2, unidad: 'ud', categoria: 'Proteínas' },
+      { nombre: 'Pollo', cantidad: 700, unidad: 'g troceado', categoria: 'Proteínas' },
+      { nombre: 'Patatas', cantidad: 5, unidad: 'ud medianas', categoria: 'Verduras' },
+      { nombre: 'Huevos', cantidad: 3, unidad: 'ud', categoria: 'Proteínas' },
       { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
       { nombre: 'Pimiento rojo', cantidad: 1, unidad: 'ud', categoria: 'Verduras' },
       { nombre: 'Pimentón dulce', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias' },
@@ -478,13 +496,13 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-tortitas-calabacin.jfif',
     ingredientes: [
-      { nombre: 'Calabacín', cantidad: 2, unidad: 'ud medianos', categoria: 'Verduras' },
-      { nombre: 'Zanahoria', cantidad: 2, unidad: 'ud', categoria: 'Verduras' },
-      { nombre: 'Huevos', cantidad: 2, unidad: 'ud', categoria: 'Proteínas' },
-      { nombre: 'Queso parmesano', cantidad: 40, unidad: 'g', categoria: 'Lácteos' },
-      { nombre: 'Harina de trigo', cantidad: 60, unidad: 'g', categoria: 'Despensa' },
-      { nombre: 'Yogur griego natural', cantidad: 150, unidad: 'g', categoria: 'Lácteos' },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa' },
+      { nombre: 'Calabacín', cantidad: 4, unidad: 'ud medianos', categoria: 'Verduras' },
+      { nombre: 'Zanahoria', cantidad: 3, unidad: 'ud', categoria: 'Verduras' },
+      { nombre: 'Huevos', cantidad: 6, unidad: 'ud', categoria: 'Proteínas' },
+      { nombre: 'Queso parmesano', cantidad: 100, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Harina de trigo', cantidad: 120, unidad: 'g', categoria: 'Despensa' },
+      { nombre: 'Yogur griego natural', cantidad: 400, unidad: 'g', categoria: 'Lácteos' },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 70, unidad: 'ml', categoria: 'Despensa' },
       { nombre: 'Orégano', cantidad: 0.5, unidad: 'cucharadita', categoria: 'Especias' },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa' }
@@ -507,10 +525,10 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'tortilla-de-patatas.jpg',
     ingredientes: [
-      { nombre: 'Patatas', cantidad: 600, unidad: 'g', categoria: 'Verduras', peso: 5 },
-      { nombre: 'Huevos', cantidad: 5, unidad: 'ud', categoria: 'Proteínas', peso: 5 },
-      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 80, unidad: 'ml', categoria: 'Despensa', peso: 3 },
+      { nombre: 'Patatas', cantidad: 1000, unidad: 'g', categoria: 'Verduras', peso: 5 },
+      { nombre: 'Huevos', cantidad: 10, unidad: 'ud', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Cebolla', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 100, unidad: 'ml', categoria: 'Despensa', peso: 3 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
     equipamiento: ['Sartén', 'Bol'],
@@ -530,15 +548,15 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-salteado-tofu.jfif',
     ingredientes: [
-      { nombre: 'Tofu firme', cantidad: 250, unidad: 'g', categoria: 'Proteínas', peso: 5 },
-      { nombre: 'Arroz', cantidad: 180, unidad: 'g (crudo)', categoria: 'Despensa', peso: 5 },
-      { nombre: 'Calabacín', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Pimiento rojo', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Zanahoria', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Tofu', cantidad: 450, unidad: 'g', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Arroz', cantidad: 320, unidad: 'g (crudo)', categoria: 'Despensa', peso: 5 },
+      { nombre: 'Calabacín', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Pimiento rojo', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Zanahoria', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 2 },
       { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 2 },
       { nombre: 'Ajo', cantidad: 2, unidad: 'dientes', categoria: 'Verduras', peso: 2 },
       { nombre: 'Salsa de soja', cantidad: 20, unidad: 'ml', categoria: 'Despensa', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 60, unidad: 'ml', categoria: 'Despensa', peso: 2 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
     equipamiento: ['Sartén', 'Cacerola'],
@@ -559,11 +577,11 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-heura-ajillo.jpg',
     ingredientes: [
-      { nombre: 'Heura', cantidad: 300, unidad: 'g', categoria: 'Proteínas', peso: 5 },
-      { nombre: 'Patatas', cantidad: 700, unidad: 'g', categoria: 'Verduras', peso: 5 },
-      { nombre: 'Ajo', cantidad: 4, unidad: 'dientes', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Heura', cantidad: 550, unidad: 'g', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Patatas', cantidad: 1000, unidad: 'g', categoria: 'Verduras', peso: 5 },
+      { nombre: 'Ajo', cantidad: 6, unidad: 'dientes', categoria: 'Verduras', peso: 3 },
       { nombre: 'Perejil', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 50, unidad: 'ml', categoria: 'Despensa', peso: 3 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 90, unidad: 'ml', categoria: 'Despensa', peso: 3 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
@@ -584,17 +602,17 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-alubias-blancas.jpg',
     ingredientes: [
-      { nombre: 'Alubias blancas', cantidad: 600, unidad: 'g cocidas', categoria: 'Proteínas', peso: 5 },
-      { nombre: 'Patatas', cantidad: 200, unidad: 'g', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Pimiento verde', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Zanahoria', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Ajo', cantidad: 3, unidad: 'dientes', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Tomate frito', cantidad: 200, unidad: 'ml', categoria: 'Despensa', peso: 3 },
+      { nombre: 'Alubias blancas', cantidad: 900, unidad: 'g cocidas', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Patatas', cantidad: 400, unidad: 'g', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Cebolla', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Pimiento verde', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Zanahoria', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Ajo', cantidad: 4, unidad: 'dientes', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Tomate frito', cantidad: 400, unidad: 'ml', categoria: 'Despensa', peso: 3 },
       { nombre: 'Pimentón dulce', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias', peso: 2 },
       { nombre: 'Laurel', cantidad: 1, unidad: 'hoja', categoria: 'Especias', peso: 1 },
-      { nombre: 'Caldo de verduras', cantidad: 200, unidad: 'ml', categoria: 'Despensa', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Caldo de verduras', cantidad: 400, unidad: 'ml', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 60, unidad: 'ml', categoria: 'Despensa', peso: 2 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
     equipamiento: ['Cacerola', 'Cuchara de madera'],
@@ -615,12 +633,12 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-macarrones-tomate.jfif',
     ingredientes: [
-      { nombre: 'Macarrones', cantidad: 320, unidad: 'g', categoria: 'Despensa', peso: 5 },
-      { nombre: 'Tomate frito', cantidad: 400, unidad: 'ml', categoria: 'Despensa', peso: 4 },
-      { nombre: 'Huevos', cantidad: 3, unidad: 'ud', categoria: 'Proteínas', peso: 4 },
+      { nombre: 'Macarrones', cantidad: 420, unidad: 'g', categoria: 'Despensa', peso: 5 },
+      { nombre: 'Tomate frito', cantidad: 500, unidad: 'ml', categoria: 'Despensa', peso: 4 },
+      { nombre: 'Huevos', cantidad: 4, unidad: 'ud', categoria: 'Proteínas', peso: 4 },
       { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
       { nombre: 'Ajo', cantidad: 2, unidad: 'dientes', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 40, unidad: 'ml', categoria: 'Despensa', peso: 2 },
       { nombre: 'Orégano', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias', peso: 2 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
@@ -641,12 +659,12 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-ensaladilla-rusa.webp',
     ingredientes: [
-      { nombre: 'Patatas', cantidad: 700, unidad: 'g', categoria: 'Verduras', peso: 5 },
-      { nombre: 'Zanahoria', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Guisantes', cantidad: 150, unidad: 'g', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Huevos', cantidad: 3, unidad: 'ud', categoria: 'Proteínas', peso: 4 },
-      { nombre: 'Mayonesa', cantidad: 100, unidad: 'g', categoria: 'Despensa', peso: 4 },
-      { nombre: 'Aceitunas', cantidad: 50, unidad: 'g', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Patatas', cantidad: 900, unidad: 'g', categoria: 'Verduras', peso: 5 },
+      { nombre: 'Zanahoria', cantidad: 3, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Guisantes', cantidad: 200, unidad: 'g', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Huevos', cantidad: 6, unidad: 'ud', categoria: 'Proteínas', peso: 4 },
+      { nombre: 'Mayonesa', cantidad: 160, unidad: 'g', categoria: 'Despensa', peso: 4 },
+      { nombre: 'Aceitunas', cantidad: 80, unidad: 'g', categoria: 'Despensa', peso: 2 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
     equipamiento: ['Cacerola', 'Bol'],
@@ -667,16 +685,16 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-croquetas-setas.avif',
     ingredientes: [
-      { nombre: 'Setas', cantidad: 300, unidad: 'g', categoria: 'Verduras', peso: 5 },
-      { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Harina de trigo', cantidad: 60, unidad: 'g', categoria: 'Despensa', peso: 3 },
-      { nombre: 'Leche', cantidad: 400, unidad: 'ml', categoria: 'Lácteos', peso: 3 },
-      { nombre: 'Mantequilla', cantidad: 30, unidad: 'g', categoria: 'Lácteos', peso: 2 },
-      { nombre: 'Pan rallado', cantidad: 80, unidad: 'g', categoria: 'Despensa', peso: 3 },
-      { nombre: 'Huevos', cantidad: 1, unidad: 'ud', categoria: 'Proteínas', peso: 2 },
-      { nombre: 'Lechuga', cantidad: 80, unidad: 'g', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Tomate', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 20, unidad: 'ml', categoria: 'Despensa', peso: 1 },
+      { nombre: 'Setas', cantidad: 600, unidad: 'g', categoria: 'Verduras', peso: 5 },
+      { nombre: 'Cebolla', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Harina de trigo', cantidad: 120, unidad: 'g', categoria: 'Despensa', peso: 3 },
+      { nombre: 'Leche', cantidad: 800, unidad: 'ml', categoria: 'Lácteos', peso: 3 },
+      { nombre: 'Mantequilla', cantidad: 60, unidad: 'g', categoria: 'Lácteos', peso: 2 },
+      { nombre: 'Pan rallado', cantidad: 140, unidad: 'g', categoria: 'Despensa', peso: 3 },
+      { nombre: 'Huevos', cantidad: 3, unidad: 'ud', categoria: 'Proteínas', peso: 2 },
+      { nombre: 'Lechuga', cantidad: 100, unidad: 'g', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Tomate', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 40, unidad: 'ml', categoria: 'Despensa', peso: 1 },
       { nombre: 'Nuez moscada', cantidad: 1, unidad: 'pizca', categoria: 'Especias', peso: 1 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
@@ -699,12 +717,12 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-revuelto-setas.jfif',
     ingredientes: [
-      { nombre: 'Setas', cantidad: 400, unidad: 'g', categoria: 'Verduras', peso: 5 },
-      { nombre: 'Huevos', cantidad: 6, unidad: 'ud', categoria: 'Proteínas', peso: 5 },
-      { nombre: 'Ajetes', cantidad: 100, unidad: 'g', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Queso rallado', cantidad: 100, unidad: 'g', categoria: 'Lácteos', peso: 2 },
-      { nombre: 'Pan integral', cantidad: 4, unidad: 'rebanadas', categoria: 'Despensa', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 30, unidad: 'ml', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Setas', cantidad: 600, unidad: 'g', categoria: 'Verduras', peso: 5 },
+      { nombre: 'Huevos', cantidad: 10, unidad: 'ud', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Ajetes', cantidad: 200, unidad: 'g', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Queso rallado', cantidad: 150, unidad: 'g', categoria: 'Lácteos', peso: 2 },
+      { nombre: 'Pan integral', cantidad: 8, unidad: 'rebanadas', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 50, unidad: 'ml', categoria: 'Despensa', peso: 2 },
       { nombre: 'Perejil', cantidad: 1, unidad: 'cucharadita', categoria: 'Especias', peso: 1 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
@@ -726,15 +744,15 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-fajitas-falafel.jfif',
     ingredientes: [
-      { nombre: 'Tortillas de trigo', cantidad: 4, unidad: 'ud', categoria: 'Despensa', peso: 5 },
-      { nombre: 'Falafel', cantidad: 10, unidad: 'ud', categoria: 'Proteínas', peso: 5 },
-      { nombre: 'Pimiento rojo', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
+      { nombre: 'Tortillas de trigo', cantidad: 8, unidad: 'ud', categoria: 'Despensa', peso: 5 },
+      { nombre: 'Falafel', cantidad: 16, unidad: 'ud', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Pimiento rojo', cantidad: 2, unidad: 'ud', categoria: 'Verduras', peso: 3 },
       { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Lechuga', cantidad: 100, unidad: 'g', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Yogur griego natural', cantidad: 100, unidad: 'g', categoria: 'Lácteos', peso: 2 },
-      { nombre: 'Limón', cantidad: 0.5, unidad: 'ud', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Lechuga', cantidad: 150, unidad: 'g', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Yogur griego natural', cantidad: 200, unidad: 'g', categoria: 'Lácteos', peso: 2 },
+      { nombre: 'Limón', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 2 },
       { nombre: 'Comino molido', cantidad: 0.5, unidad: 'cucharadita', categoria: 'Especias', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 20, unidad: 'ml', categoria: 'Despensa', peso: 1 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 40, unidad: 'ml', categoria: 'Despensa', peso: 1 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
     equipamiento: ['Sartén', 'Bol'],
@@ -755,13 +773,13 @@ const DEFAULT_RECIPES = [
     porciones_base: 4,
     imagen: 'plato-empanadillas-espinacas.jpg',
     ingredientes: [
-      { nombre: 'Masa de empanadilla', cantidad: 8, unidad: 'ud', categoria: 'Despensa', peso: 5 },
-      { nombre: 'Espinacas', cantidad: 300, unidad: 'g', categoria: 'Verduras', peso: 5 },
-      { nombre: 'Queso rallado', cantidad: 120, unidad: 'g', categoria: 'Lácteos', peso: 4 },
+      { nombre: 'Masa de empanadilla', cantidad: 14, unidad: 'ud', categoria: 'Despensa', peso: 5 },
+      { nombre: 'Espinacas', cantidad: 500, unidad: 'g', categoria: 'Verduras', peso: 5 },
+      { nombre: 'Queso rallado', cantidad: 250, unidad: 'g', categoria: 'Lácteos', peso: 4 },
       { nombre: 'Cebolla', cantidad: 1, unidad: 'ud', categoria: 'Verduras', peso: 3 },
-      { nombre: 'Nueces', cantidad: 20, unidad: 'g', categoria: 'Despensa', peso: 2 },
-      { nombre: 'Ajo', cantidad: 2, unidad: 'dientes', categoria: 'Verduras', peso: 2 },
-      { nombre: 'Aceite de oliva virgen extra', cantidad: 20, unidad: 'ml', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Nueces', cantidad: 40, unidad: 'g', categoria: 'Despensa', peso: 2 },
+      { nombre: 'Ajo', cantidad: 3, unidad: 'dientes', categoria: 'Verduras', peso: 2 },
+      { nombre: 'Aceite de oliva virgen extra', cantidad: 40, unidad: 'ml', categoria: 'Despensa', peso: 2 },
       { nombre: 'Sal', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 },
       { nombre: 'Pimienta negra', cantidad: 1, unidad: 'pizca', categoria: 'Despensa', peso: 1 }
     ],
@@ -817,7 +835,7 @@ const DEFAULT_RECIPES = [
     imagen: 'plato-pad-thai-vegetariano.jpg',
     ingredientes: [
       { nombre: 'Fideos de arroz', cantidad: 380, unidad: 'g', categoria: 'Despensa', peso: 5 },
-      { nombre: 'Tofu firme', cantidad: 480, unidad: 'g', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Tofu', cantidad: 480, unidad: 'g', categoria: 'Proteínas', peso: 5 },
       { nombre: 'Huevos', cantidad: 6, unidad: 'ud', categoria: 'Proteínas', peso: 4 },
       { nombre: 'Cacahuetes', cantidad: 80, unidad: 'g', categoria: 'Despensa', peso: 3 },
       { nombre: 'Brotes de soja', cantidad: 320, unidad: 'g', categoria: 'Verduras', peso: 3 },
@@ -844,14 +862,14 @@ const DEFAULT_RECIPES = [
   {
     id: 'receta-23',
     nombre: 'Paella de verduras con alcachofas',
-    descripcion: 'Paella de arroz con alcachofas, judías verdes, guisantes y pimiento, reforzada con garbanzos y tofu ahumado.',
+    descripcion: 'Paella de arroz con alcachofas, judías verdes, guisantes y pimiento, reforzada con garbanzos y tofu.',
     tiempo: '50 min',
     porciones_base: 4,
     imagen: 'plato-paella-verduras-alcachofas.jpg',
     ingredientes: [
       { nombre: 'Arroz', cantidad: 320, unidad: 'g', categoria: 'Despensa', peso: 5 },
       { nombre: 'Garbanzos', cantidad: 400, unidad: 'g', categoria: 'Despensa', peso: 4 },
-      { nombre: 'Tofu ahumado', cantidad: 400, unidad: 'g', categoria: 'Proteínas', peso: 5 },
+      { nombre: 'Tofu', cantidad: 400, unidad: 'g', categoria: 'Proteínas', peso: 5 },
       { nombre: 'Alcachofas', cantidad: 400, unidad: 'g', categoria: 'Verduras', peso: 4 },
       { nombre: 'Guisantes', cantidad: 240, unidad: 'g', categoria: 'Verduras', peso: 3 },
       { nombre: 'Judías verdes', cantidad: 150, unidad: 'g', categoria: 'Verduras', peso: 3 },
@@ -867,7 +885,7 @@ const DEFAULT_RECIPES = [
     ],
     equipamiento: ['Paellera o sartén ancha'],
     pasos: [
-      'Calienta el aceite en la paellera y dora el tofu ahumado en dados. Resérvalo.',
+      'Calienta el aceite en la paellera y dora el tofu en dados. Resérvalo.',
       'Sofríe el ajo laminado, el pimiento troceado y las judías verdes 5 minutos. Añade las alcachofas y rehoga 3 minutos.',
       'Incorpora el tomate rallado y cocina hasta que se reduzca. Añade el pimentón y remueve rápido.',
       'Agrega el arroz y rehógalo 1 minuto. Vierte el caldo caliente con el azafrán y reparte bien el arroz.',
@@ -1034,7 +1052,7 @@ const DEFAULT_RECIPES = [
 ];
 
 // Se materializa el peso en cada ingrediente de las recetas por defecto para
-// que viaje con los datos (localStorage, .txt y filtro ponderado).
+// que viaje con los datos (localStorage, .txt y coincidencia del recetario).
 DEFAULT_RECIPES.forEach(receta => {
   receta.ingredientes.forEach(ingrediente => {
     if (typeof ingrediente.peso !== 'number') {
@@ -1103,7 +1121,13 @@ class App {
     const limpia = {};
     Object.entries(guardados).forEach(([categoria, lista]) => {
       if (!Array.isArray(lista)) return;
-      limpia[categoria] = lista.filter(nombre => typeof nombre === 'string' && nombre);
+      const nueva = [];
+      lista.forEach(nombre => {
+        if (typeof nombre !== 'string' || !nombre) return;
+        const renombrado = RENOMBRAR_INGREDIENTES[nombre] || nombre;
+        if (!nueva.includes(renombrado)) nueva.push(renombrado);
+      });
+      if (nueva.length) limpia[categoria] = nueva;
     });
     return Object.keys(limpia).length ? limpia : null;
   }
@@ -1179,13 +1203,15 @@ class App {
   }
 
   normalizarIngrediente(recetaId, ingrediente) {
+    const nombreOriginal = String(ingrediente.nombre || '').trim();
+    const nombre = RENOMBRAR_INGREDIENTES[nombreOriginal] || nombreOriginal;
     const cantidad = Number(ingrediente.cantidad);
     const unidad = String(ingrediente.unidad || 'ud').trim() || 'ud';
     const normalizado = {
-      nombre: String(ingrediente.nombre),
+      nombre,
       cantidad: Number.isFinite(cantidad) && cantidad > 0 ? cantidad : 1,
       unidad,
-      categoria: ingrediente.categoria || this.categoriaDe(ingrediente.nombre)
+      categoria: ingrediente.categoria || this.categoriaDe(nombre)
     };
     const peso = Number(ingrediente.peso);
     normalizado.peso = Number.isFinite(peso)
@@ -1208,25 +1234,32 @@ class App {
     return pesoInferido(ingrediente);
   }
 
-  // Puntuación ponderada del filtro: peso de lo que coincide / peso total.
+  // Coincidencia del filtro: cobertura ponderada estirada + plus por
+  // protagonistas. Así un ingrediente principal se reconoce de un vistazo.
   calcularCoincidencia(receta, seleccionados) {
     const conjunto = new Set(seleccionados || []);
     let pesoCoincide = 0;
     let pesoTotal = 0;
     let coincidencias = 0;
+    let protagonistas = 0;
     (receta.ingredientes || []).forEach(ing => {
       const peso = this.pesoDe(ing);
       pesoTotal += peso;
       if (conjunto.has(ing.nombre)) {
         pesoCoincide += peso;
         coincidencias += 1;
+        if (peso >= PESO_PROTAGONISTA) protagonistas += 1;
       }
     });
+    const cobertura = pesoTotal ? pesoCoincide / pesoTotal : 0;
+    const puntuacion = Math.min(1, cobertura * FACTOR_COINCIDENCIA + protagonistas * BONUS_PROTAGONISTA);
     return {
-      puntuacion: pesoTotal ? pesoCoincide / pesoTotal : 0,
+      puntuacion,
+      cobertura,
       pesoCoincide,
       pesoTotal,
       coincidencias,
+      protagonistas,
       total: (receta.ingredientes || []).length
     };
   }
@@ -2172,7 +2205,9 @@ class App {
 
     const personas = document.getElementById('detalle-personas');
     if (personas) {
-      personas.value = rec.porciones_base || 4;
+      // La receta puede ser de 4 raciones, pero el contador arranca en 1
+      // comensal: es lo habitual para quien cocina para sí mismo.
+      personas.value = 1;
       personas.min = 1;
       personas.max = 24;
     }
@@ -2458,7 +2493,7 @@ class App {
         </div>
         ${filas}
       </div>
-      <p class="tabla-ayuda">El peso (1-5) indica la importancia del ingrediente en la receta y decide el orden del filtro ponderado: 1 = condimento, 5 = protagonista.</p>`;
+      <p class="tabla-ayuda">El peso (1-5) indica la importancia del ingrediente en la receta y alimenta la coincidencia del recetario: 1 = condimento, 5 = protagonista.</p>`;
 
     cont.querySelectorAll('.fila-ingrediente').forEach(fila => {
       const nombre = fila.dataset.ingrediente;
@@ -2790,16 +2825,25 @@ class App {
     const pesoMax = {};
     this.recetas.forEach(rec => {
       (rec.ingredientes || []).forEach(ing => {
+        const peso = this.pesoDe(ing);
         const prev = pesoMax[ing.nombre] || 0;
-        if (ing.peso > prev) pesoMax[ing.nombre] = ing.peso;
+        if (peso > prev) pesoMax[ing.nombre] = peso;
       });
     });
 
     // Ingredientes únicos de la despensa del usuario
     const todos = [...new Set(Object.values(this.ingredientes).flat())].sort((a, b) => a.localeCompare(b));
 
-    const principales = todos.filter(ing => (pesoMax[ing] || 0) >= 4);
-    const secundarios = todos.filter(ing => (pesoMax[ing] || 0) < 4);
+    // El buscador también filtra la lista de ingredientes disponibles.
+    const buscador = document.getElementById('buscador-alimentos');
+    const busqueda = buscador ? buscador.value : '';
+    const terminos = this.normalizarBusqueda(busqueda);
+    const todosFiltrados = terminos
+      ? todos.filter(ing => this.normalizarBusqueda(ing).includes(terminos))
+      : todos;
+
+    const principales = todosFiltrados.filter(ing => (pesoMax[ing] || 0) >= PESO_PROTAGONISTA);
+    const secundarios = todosFiltrados.filter(ing => (pesoMax[ing] || 0) < PESO_PROTAGONISTA);
 
     // Render principales (base del plato, visibles siempre)
     principales.forEach(ingrediente => {
@@ -2842,6 +2886,43 @@ class App {
       cont.appendChild(btn);
       cont.appendChild(secundariosBox);
     }
+
+    // Si el alimento buscado no está en la nevera, ofrecer añadirlo rápido.
+    if (terminos && todosFiltrados.length === 0) {
+      const catalogo = this.catalogoIngredientes();
+      const todosCatalogo = Object.values(catalogo).flat();
+      const existente = todosCatalogo.find(ing => this.normalizarBusqueda(ing) === terminos)
+        || todosCatalogo.find(ing => this.normalizarBusqueda(ing).includes(terminos));
+      const nombreFinal = existente || busqueda.trim();
+      const boton = document.createElement('button');
+      boton.type = 'button';
+      boton.className = 'chip btn-añadir-rapido';
+      boton.textContent = `+ Añadir ${nombreFinal} a la nevera`;
+      boton.addEventListener('click', () => {
+        this.agregarAnevera(nombreFinal);
+        this.renderChipsFiltro();
+        this.filtrarRecetas();
+      });
+      cont.appendChild(boton);
+    }
+  }
+
+  agregarAnevera(nombre) {
+    const nombreFinal = String(nombre || '').trim();
+    if (!nombreFinal) return;
+    const catalogo = this.catalogoIngredientes();
+    const todosCatalogo = Object.values(catalogo).flat();
+    const existente = todosCatalogo.find(ing => ing.toLowerCase() === nombreFinal.toLowerCase());
+    const nombreCanonico = existente || nombreFinal;
+    const categoria = existente ? this.categoriaDe(nombreCanonico) : 'Despensa';
+    const todos = Object.values(this.ingredientes).flat();
+    if (todos.some(ing => ing.toLowerCase() === nombreCanonico.toLowerCase())) return;
+    if (!this.ingredientes[categoria]) this.ingredientes[categoria] = [];
+    this.ingredientes[categoria].push(nombreCanonico);
+    this.guardarDatos();
+    this.renderCategoriasIngredientes();
+    this.actualizarContador();
+    this.actualizarContadorDespensa();
   }
 
   obtenerIngredientesSeleccionados() {
@@ -2868,12 +2949,34 @@ class App {
     return etiquetas[tipo] || 'Plato';
   }
 
+  // Búsqueda libre: sin acentos, sin mayúsculas y por palabras sueltas.
+  normalizarBusqueda(texto) {
+    return String(texto || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  coincideBusqueda(receta, busqueda) {
+    const terminos = this.normalizarBusqueda(busqueda).split(/\s+/).filter(Boolean);
+    if (!terminos.length) return true;
+    const texto = this.normalizarBusqueda([
+      receta.nombre,
+      receta.descripcion,
+      ...(receta.ingredientes || []).map(ing => ing.nombre)
+    ].join(' '));
+    return terminos.every(termino => texto.includes(termino));
+  }
+
   filtrarRecetas() {
     const grid = document.getElementById('grid-recetas');
     if (!grid) return;
     const seleccionados = this.obtenerIngredientesSeleccionados();
     const despensa = this.despensaSet();
     const filtros = this.filtrosNutricion();
+    const buscador = document.getElementById('buscador-alimentos');
+    const busqueda = buscador ? buscador.value : '';
 
     let resultados = this.recetas.map(rec => ({
       rec,
@@ -2882,32 +2985,58 @@ class App {
     }));
 
     if (seleccionados.length) resultados = resultados.filter(item => item.coincidencias > 0);
+    if (busqueda.trim()) resultados = resultados.filter(item => this.coincideBusqueda(item.rec, busqueda));
     if (filtros.soloVegetarianas) resultados = resultados.filter(item => item.info.vegetariana);
     if (filtros.rango !== 'todas') {
       resultados = resultados.filter(item => item.info.perfil.clave === filtros.rango);
     }
 
     const porNombre = (a, b) => a.rec.nombre.localeCompare(b.rec.nombre, 'es');
-    resultados.sort((a, b) => {
-      if (filtros.orden === 'kcal-asc') return (a.info.kcalPorRacion - b.info.kcalPorRacion) || porNombre(a, b);
-      if (filtros.orden === 'kcal-desc') return (b.info.kcalPorRacion - a.info.kcalPorRacion) || porNombre(a, b);
-      if (filtros.orden === 'nombre') return porNombre(a, b);
-      if (seleccionados.length) {
-        return (b.puntuacion - a.puntuacion)
-          || (b.coincidencias - a.coincidencias)
-          || porNombre(a, b);
-      }
-      return 0;
-    });
+    const porCoincidencia = (a, b) =>
+      (b.puntuacion - a.puntuacion)
+      || (b.protagonistas - a.protagonistas)
+      || (b.coincidencias - a.coincidencias)
+      || porNombre(a, b);
+
+    const haySeleccion = seleccionados.length > 0;
+    const hayBusqueda = busqueda.trim().length > 0;
+    const totalFiltradas = resultados.length;
+
+    // Con ingredientes seleccionados, primero nos quedamos con las 8 recetas
+    // con más coincidencias y después respetamos el orden que pida el usuario.
+    if (haySeleccion) {
+      resultados.sort(porCoincidencia);
+      resultados = resultados.slice(0, RECETAS_TOP_FILTRO);
+    }
+
+    if (filtros.orden === 'kcal-asc') {
+      resultados.sort((a, b) => (a.info.kcalPorRacion - b.info.kcalPorRacion) || porNombre(a, b));
+    } else if (filtros.orden === 'kcal-desc') {
+      resultados.sort((a, b) => (b.info.kcalPorRacion - a.info.kcalPorRacion) || porNombre(a, b));
+    } else if (filtros.orden === 'nombre') {
+      resultados.sort(porNombre);
+    } else if (haySeleccion) {
+      resultados.sort(porCoincidencia);
+    }
 
     const contador = document.getElementById('contador-resultados');
     if (contador) {
-      contador.textContent = `${resultados.length} receta${resultados.length === 1 ? '' : 's'} encontrada${resultados.length === 1 ? '' : 's'}`;
+      if (!resultados.length) {
+        contador.textContent = hayBusqueda || !haySeleccion
+          ? '0 recetas encontradas'
+          : 'Ninguna receta con esos ingredientes';
+      } else if (haySeleccion && totalFiltradas > resultados.length) {
+        contador.textContent = `${resultados.length} de ${totalFiltradas} recetas · las más coincidentes`;
+      } else {
+        contador.textContent = `${resultados.length} receta${resultados.length === 1 ? '' : 's'} encontrada${resultados.length === 1 ? '' : 's'}`;
+      }
     }
 
     grid.innerHTML = '';
     if (!resultados.length) {
-      grid.innerHTML = '<p class="vacio-texto">No hay recetas con esos ingredientes. Quita algún filtro para ver más.</p>';
+      grid.innerHTML = hayBusqueda
+        ? '<p class="vacio-texto">No hay recetas que coincidan con la búsqueda.</p>'
+        : '<p class="vacio-texto">No hay recetas con esos ingredientes. Quita algún filtro para ver más.</p>';
       return;
     }
 
@@ -2916,16 +3045,20 @@ class App {
       const info = item.info;
       const faltan = rec.ingredientes.filter(ing => !despensa.has(ing.nombre)).length;
       const porcentaje = Math.round(item.puntuacion * 100);
+      const claseColor = porcentaje >= 70 ? 'alta' : (porcentaje >= 45 ? 'media' : 'baja');
+      const protagonistasTexto = item.protagonistas
+        ? ` · ${item.protagonistas} protagonista${item.protagonistas === 1 ? '' : 's'}`
+        : '';
       const puntuacion = seleccionados.length
-        ? `<div class="tarjeta-puntuacion">
+        ? `<div class="tarjeta-puntuacion tarjeta-puntuacion--${claseColor}">
              <div class="tarjeta-puntuacion-cabecera">
-               <span>Coincidencia ponderada</span>
+               <span>Coincidencia</span>
                <strong>${porcentaje} %</strong>
              </div>
-             <div class="tarjeta-barra" role="img" aria-label="Coincidencia ponderada del ${porcentaje} por ciento">
+             <div class="tarjeta-barra" role="img" aria-label="Coincidencia del ${porcentaje} por ciento">
                <span style="width:${porcentaje}%"></span>
              </div>
-             <span class="tarjeta-puntuacion-detalle">${item.coincidencias} de ${item.total} ingredientes · peso ${item.pesoCoincide} de ${item.pesoTotal}</span>
+             <span class="tarjeta-puntuacion-detalle">${item.coincidencias} de ${item.total} ingredientes${protagonistasTexto}</span>
            </div>`
         : '';
 
@@ -2957,7 +3090,7 @@ class App {
               const coincide = seleccionados.includes(ing.nombre);
               const clases = ['tarjeta-chip'];
               if (coincide) clases.push('coincide');
-              if (peso >= 4) clases.push('principal');
+              if (peso >= PESO_PROTAGONISTA) clases.push('principal');
               return `<span class="${clases.join(' ')}" title="Importancia ${peso} de 5${coincide ? ' · lo tienes' : ''}">${this.esc(ing.nombre)}</span>`;
             }).join('')}
           </div>
@@ -2985,6 +3118,9 @@ class App {
 
   filtrarPorTodas() {
     document.querySelectorAll('#chips-filtro-ingredientes .chip').forEach(chip => chip.classList.remove('activo'));
+    const buscador = document.getElementById('buscador-alimentos');
+    if (buscador) buscador.value = '';
+    this.renderChipsFiltro();
     this.filtrarRecetas();
   }
 
@@ -3032,6 +3168,20 @@ class App {
     if (orden && !orden.dataset.bound) {
       orden.dataset.bound = '1';
       orden.addEventListener('change', () => this.filtrarRecetas());
+    }
+    const buscador = document.getElementById('buscador-alimentos');
+    if (buscador && !buscador.dataset.bound) {
+      buscador.dataset.bound = '1';
+      buscador.addEventListener('input', () => {
+        this.renderChipsFiltro();
+        this.filtrarRecetas();
+      });
+      buscador.addEventListener('keydown', (evento) => {
+        if (evento.key !== 'Escape') return;
+        buscador.value = '';
+        this.renderChipsFiltro();
+        this.filtrarRecetas();
+      });
     }
     document.querySelectorAll('#chips-rango-kcal .chip').forEach(chip => {
       if (chip.dataset.bound) return;

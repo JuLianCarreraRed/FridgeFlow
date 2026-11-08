@@ -16,10 +16,6 @@
       <nav class="nav-links">
         <a href="index.html">Planificador</a>
         <a href="recetario.html" class="activo">Recetario</a>
-        <a href="auditoria.html">Auditoría</a>
-        <a href="index.html#como-funciona">Cómo funciona</a>
-        <a href="index.html#coste-olvidar">El coste de olvidar</a>
-        <a href="index.html#precios">Precios</a>
       </nav>
       <div class="header-actions">
         <span class="alimentos-contador" id="contador-alimentos">0 alimentos</span>
@@ -34,6 +30,10 @@
         <div class="filtros-top">
           <button class="chip activo" id="chip-ver-todas" onclick="app.filtrarPorTodas()">Ver todas las recetas</button>
           <span class="contador-resultados" id="contador-resultados">0 recetas encontradas</span>
+          <label class="buscador-alimentos" for="buscador-alimentos">
+            <span class="buscador-icono" aria-hidden="true">🔍</span>
+            <input type="search" id="buscador-alimentos" placeholder="Buscar alimento o receta…" autocomplete="off" aria-label="Buscar alimento o receta">
+          </label>
         </div>
         <div class="chips-ingredientes" id="chips-filtro-ingredientes"></div>
         <div class="filtros-nutricion">
