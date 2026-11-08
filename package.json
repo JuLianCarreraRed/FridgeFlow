@@ -1,6 +1,6 @@
 {
   "name": "fridgeflow",
-  "version": "2.5.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "description": "Planificador semanal de menus con los alimentos que ya tienes en casa. Web 100 % estatica.",

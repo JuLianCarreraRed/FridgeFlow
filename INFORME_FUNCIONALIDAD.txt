@@ -4,7 +4,7 @@ INFORME DE OBJETIVOS Y FUNCIONALIDAD — FRIDGEFLOW
 Proyecto: FridgeFlow — Planificador de menús semanales
 Cliente / Usuario: Usuario final (hogar)
 Fecha: 24/10/2026
-Versión: 2.5 (entrega estática, sin backend)
+Versión: 3.0 (entrega estática, sin backend)
 ================================================================================
 
 1. FINALIDAD DEL PROYECTO

@@ -2,7 +2,7 @@
 
 Herramienta web estática para crear recetas y menús semanales con los alimentos que ya tienes en casa, reduciendo el desperdicio alimentario y ahorrando tiempo y dinero.
 
-**Versión 2.5** — 20 recetas (10 de ellas vegetarianas nuevas), kcal por ración, combinaciones saludables en el planificador, menú vegetariano opcional, edición de recetas y sincronización con los `.txt`. 100 % estático: abre `index.html` y ya está.
+**Versión 3.0** — 28 recetas, buscador de alimentos, coincidencia coloreada del filtro, tofu unificado, kcal por ración, combinaciones saludables en el planificador, menú vegetariano opcional, edición de recetas y sincronización con los `.txt`. 100 % estático: abre `index.html` y ya está.
 
 ## Archivos del proyecto
 
@@ -107,7 +107,7 @@ Todo se guarda en `localStorage`:
 | `fridgeflow_recetas` | Recetas (20 por defecto + las creadas por el usuario) |
 | `fridgeflow_ingredientes` | Tu despensa por categorías |
 | `fridgeflow_semana` | Menú semanal y marcas "de ayer" |
-| `fridgeflow_version` | Versión del esquema de datos (2.5) |
+| `fridgeflow_version` | Versión del esquema de datos (3.0) |
 | `fridgeflow_preferencias` | Preferencias del planificador (menú vegetariano) |
 
 Al cargar la página se recupera lo guardado; si cambia la versión de los datos se migran las recetas e ingredientes por defecto sin perder las recetas propias. Para empezar de cero, borra esas claves desde las herramientas de desarrollo del navegador (Application → Local Storage).

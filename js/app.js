@@ -13,7 +13,7 @@ const STORAGE_INGREDIENTS = 'fridgeflow_ingredientes';
 const STORAGE_WEEK = 'fridgeflow_semana';
 const STORAGE_VERSION = 'fridgeflow_version';
 const STORAGE_PREFERENCES = 'fridgeflow_preferencias';
-const DATA_VERSION = '2.5';
+const DATA_VERSION = '3.0';
 
 // Datos nutricionales y combinaciones saludables (se cargan desde
 // data/nutricion.js antes que este archivo).

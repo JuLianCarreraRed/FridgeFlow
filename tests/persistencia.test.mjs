@@ -18,7 +18,7 @@ const SEMANA = 'fridgeflow_semana';
 const RECETAS = 'fridgeflow_recetas';
 const INGREDIENTES = 'fridgeflow_ingredientes';
 
-function almacenCon({ version = '2.5', semana, recetas = [], ingredientes = null } = {}) {
+function almacenCon({ version = '3.0', semana, recetas = [], ingredientes = null } = {}) {
   const almacen = new Map();
   almacen.set(VERSION, version);
   if (semana !== undefined) almacen.set(SEMANA, JSON.stringify(semana));
@@ -29,7 +29,7 @@ function almacenCon({ version = '2.5', semana, recetas = [], ingredientes = null
 
 test('con la misma versión, la semana se conserva', () => {
   const semana = { 'LUN-COMIDA': { recetaId: 'receta-4', deAyer: false } };
-  const { app } = crearApp({ almacen: almacenCon({ version: '2.5', semana }), cargar: false });
+  const { app } = crearApp({ almacen: almacenCon({ version: '3.0', semana }), cargar: false });
   app.cargarDatos();
   assert.equal(app.semana['LUN-COMIDA'].recetaId, 'receta-4');
 });
@@ -47,7 +47,7 @@ test(
 
 test('un JSON corrupto no impide cargar la app', () => {
   const almacen = new Map([
-    [VERSION, '2.5'],
+    [VERSION, '3.0'],
     [RECETAS, '{esto no es json'],
     [SEMANA, 'tampoco']
   ]);
@@ -66,7 +66,7 @@ test('un JSON corrupto no impide cargar la app', () => {
 
 test('cargarDatos añade las recetas por defecto que falten', () => {
   const { app } = crearApp({
-    almacen: almacenCon({ version: '2.5', recetas: [], semana: {} }),
+    almacen: almacenCon({ version: '3.0', recetas: [], semana: {} }),
     cargar: false
   });
   app.cargarDatos();

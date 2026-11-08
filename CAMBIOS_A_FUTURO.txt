@@ -2,7 +2,7 @@
 FRIDGEFLOW — CAMBIOS A FUTURO (HOJA DE RUTA Y AUDITORÍA)
 ================================================================================
 Proyecto: FridgeFlow — Planificador de menús semanales
-Versión actual: 2.5 (entrega estática, sin backend)
+Versión actual: 3.0 (entrega estática, sin backend)
 Fecha de auditoría: 24/10/2026
 Documento generado a partir del INFORME_FUNCIONALIDAD.txt y revisión del código
 ================================================================================
@@ -12,7 +12,7 @@ ruta con recomendaciones y modificaciones detectadas durante la auditoría del
 proyecto, ordenadas por área y prioridad.
 
 ================================================================================
-1. ESTADO ACTUAL DEL PROYECTO (v2.5)
+1. ESTADO ACTUAL DEL PROYECTO (v3.0)
 ================================================================================
 
 • 3 páginas HTML estáticas: index.html (planificador), recetario.html,
@@ -239,7 +239,7 @@ PENDIENTE DE BAJA PRIORIDAD:
   (comida 750-850 kcal / 35-45g proteína; cena 650-750 kcal / 35-45g proteína).
 
 • El informe de auditoría (auditoria.html) marca todos los hallazgos como
-  "Resuelto" para la versión 2.5.
+  "Resuelto" para la versión 3.0.
 
 • El archivo readme.md aún indica "20 recetas" y debería actualizarse a 28
   tras esta iteración.
